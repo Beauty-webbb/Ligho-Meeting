@@ -424,7 +424,6 @@ export default {
           }, 500)
         }
       })
-      // this.closeopensub(this.newusers)
     },
 
     // 下一页
