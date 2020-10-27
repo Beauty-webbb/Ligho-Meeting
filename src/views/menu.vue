@@ -117,6 +117,7 @@
           </div>
         </div>
       </div>
+      <!-- <el-divider style="color:red;"><div style="width:50px;height:50px;border:1px solid red;transform:rotate(45deg);border-left-color:transparent;border-top-color:transparent;"></div></el-divider> -->
 
       <div class="anpai" style="width:100%;" v-if="!upcoming.length">
         <div class="top" style="margin-bottom:11px;">我的安排</div>
@@ -124,8 +125,7 @@
           <img src="../assets/null_data.svg" alt="">
         </div>
       </div>
-
-      <!-- <button id="btn" @click="openbtn">打开子窗口</button> -->
+      <!-- <button id="btnn" @click="opennew">打开子窗口</button> -->
 
       <!-- 编辑会议 -->
       <el-dialog class="editmeet" title="编辑会议" width="37%" center :visible.sync="EditDialogVisible">
@@ -194,6 +194,7 @@ import { mapState, mapMutations } from 'vuex'
 import APIUrl from '@/axios/api.url'
 import { post, get } from '@/axios/index'
 import { Message, Dialog, Button } from 'element-ui'
+import people from '../components/participants'
 export default {
   data() {
     return {
@@ -258,6 +259,7 @@ export default {
     ...mapState(['userinfo', 'token', 'videoStatus', 'audioStatus']),
   },
   methods: {
+
     handleCommand(type) {
       if (type == 'logout') {
         this.logout()

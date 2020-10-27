@@ -13,6 +13,7 @@ import setFeedback from '../views/SetFeedback.vue'
 import reserMeet from '../views/ReserMeet.vue'
 import meetDetails from '../views/MeetDetails.vue'
 import feedbacklist from '../views/FeedbackList.vue'
+import partlist from '../views/partlist.vue'
 
 Vue.use(VueRouter)
 
@@ -81,6 +82,11 @@ const routes = [{
     path: '/feedbacklist',
     name: 'feedbacklist',
     component: feedbacklist
+  },
+  {
+    path: '/partlist',
+    name: 'partlist',
+    component: partlist
   },
 ]
 

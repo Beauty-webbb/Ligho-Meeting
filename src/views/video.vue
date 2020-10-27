@@ -5,32 +5,22 @@
 </template>
 
 <script>
-  import APIUrl from '@/axios/api.url';
-  import {
-    post,
-    get
-  } from '@/axios/index';
-  import {
-    mapState
-  } from "vuex" //引入vuex
-  export default {
-    data() {
-      return {
-        
-      }
-    },
-    computed: {
-      ...mapState(["admin", "HideShowView", "pclosecmare"])
-    },
-    methods: {
-      
-
-    },
-  }
+import APIUrl from '@/axios/api.url'
+import { post, get } from '@/axios/index'
+import { mapState } from 'vuex' //引入vuex
+export default {
+  data() {
+    return {}
+  },
+  computed: {
+    ...mapState(['admin', 'HideShowView', 'pclosecmare']),
+  },
+  methods: {},
+}
 </script>
 
 <style>
-  .main-only-video {
-    border: 1px red solid;
-  }
+.main-only-video {
+  border: 1px red solid;
+}
 </style>

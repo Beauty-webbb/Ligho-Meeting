@@ -1,57 +1,52 @@
 <template>
-  <div class="participants-main" style="-webkit-app-region: drag;">
-    <el-drawer title="我是标题" :visible.sync="drawer" direction="ltr" size="30%" :wrapperClosable="false" :with-header="false">
-      <div class="title">
-        <h3>参会者</h3>
-      </div>
-      <div class="cont">
-        <div class="cont-left">
-          <div class="cont-left-people" v-for="(item,key) in contdata" :key="key">
-            <img :src="item.img" />
-            <span>({{item.num}})</span>
-          </div>
-        </div>
-
-        <div class="cont-right">
-          <el-input placeholder="搜索参会人" v-model="peoplesearch" class="input-with-select">
-            <el-button slot="append" icon="el-icon-search"></el-button>
-          </el-input>
+  <div class="participants">
+    <div class="title">
+      <h3>参会者</h3>
+    </div>
+    <div class="cont">
+      <div class="cont-left">
+        <div class="cont-left-people" v-for="(item,key) in contdata" :key="key">
+          <img :src="item.img" />
+          <span>({{item.num}})</span>
         </div>
       </div>
-      <div class="peoplelist" v-for="(item,key) in plist" :key="key" :style="{'background-color':bcolor(key)}" @click="clickmyself(item.userId)">
-        <el-dropdown @command="handleCommand" placement="bottom" trigger="click"
-          style="width: 70%; height: 3.5vh; padding-left: 1vh; font-size: 19px; display: flex; align-items: center;">
-          <div class="peoplelist-left">
-            <div class="pavatar"><img style="width: 100%;" :src="item.avatar" /></div>
-            <span>{{item.username}}</span>
-          </div>
-          <el-dropdown-menu v-if="showDropdowm">
-            <el-dropdown-item v-if="admin==1||admin==3" @click="moveadmin(item.userId)" :command="{type:'move',id:item.userId,message:item.admin}">
-              {{admin==3?'收回主持人权限':'移交主持人权限'}}
-            </el-dropdown-item>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="handtranscribe(item.userId)"
-              :command="{type:'transcribe',id:item.userId,message:item.transcribe}">
-              {{item.transcribe?'收回录制权限':'赋予录制权限'}}
-            </el-dropdown-item>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="handstreaming(item.userId)"
-              :command="{type:'streaming',id:item.userId,message:item.streaming}">
-              {{item.streaming?'收回直播权限':'赋予直播权限'}}
-            </el-dropdown-item>
 
-          </el-dropdown-menu>
-        </el-dropdown>
-
-        <div class="peoplelist-right">
-          <img :src='item.video ? require("../assets/canhui/video.png") : require("../assets/canhui/videoclose.png")'
-            @click="joininfo.userId != item.userId ? send_msg('Hostvideo',item.video,item.userId,key) : send_msg('video',item.video,item.userId,key) " />
-          <img :src='item.scene ? require("../assets/canhui/audio.png") : require("../assets/canhui/audioclose.png")'
-            @click="joininfo.userId != item.userId ? send_msg('Hostscene',item.scene,item.userId,key) : send_msg('scene',item.scene,item.userId,key) " />
+      <div class="cont-right">
+        <el-input placeholder="搜索参会人" v-model="peoplesearch" class="input-with-select">
+          <el-button slot="append" icon="el-icon-search"></el-button>
+        </el-input>
+      </div>
+    </div>
+    <div class="peoplelist" v-for="(item,key) in plist" :key="key" :style="{'background-color':bcolor(key)}" @click="clickmyself(item.userId)">
+      <el-dropdown @command="handleCommand" placement="bottom" trigger="click"
+        style="width: 70%; height: 3.5vh; padding-left: 1vh; font-size: 19px; display: flex; align-items: center;">
+        <div class="peoplelist-left">
+          <div class="pavatar"><img style="width: 100%;" :src="item.avatar" /></div>
+          <span>{{item.username}}</span>
         </div>
+        <el-dropdown-menu v-if="showDropdowm">
+          <el-dropdown-item v-if="admin==1||admin==3" @click="moveadmin(item.userId)" :command="{type:'move',id:item.userId,message:item.admin}">
+            {{admin==3?'收回主持人权限':'移交主持人权限'}}
+          </el-dropdown-item>
+          <el-dropdown-item v-if="admin==1||admin==3" @click="handtranscribe(item.userId)"
+            :command="{type:'transcribe',id:item.userId,message:item.transcribe}">
+            {{item.transcribe?'收回录制权限':'赋予录制权限'}}
+          </el-dropdown-item>
+          <el-dropdown-item v-if="admin==1||admin==3" @click="handstreaming(item.userId)"
+            :command="{type:'streaming',id:item.userId,message:item.streaming}">
+            {{item.streaming?'收回直播权限':'赋予直播权限'}}
+          </el-dropdown-item>
+
+        </el-dropdown-menu>
+      </el-dropdown>
+
+      <div class="peoplelist-right">
+        <img :src='item.video ? require("../assets/canhui/video.png") : require("../assets/canhui/videoclose.png")'
+          @click="joininfo.userId != item.userId ? send_msg('Hostvideo',item.video,item.userId,key) : send_msg('video',item.video,item.userId,key) " />
+        <img :src='item.scene ? require("../assets/canhui/audio.png") : require("../assets/canhui/audioclose.png")'
+          @click="joininfo.userId != item.userId ? send_msg('Hostscene',item.scene,item.userId,key) : send_msg('scene',item.scene,item.userId,key) " />
       </div>
-      <div class="bottom">
-        <el-button type="info" plain @click="closeDrawer()">关闭</el-button>
-      </div>
-    </el-drawer>
+    </div>
   </div>
 </template>
 
@@ -61,7 +56,11 @@ import APIUrl from '@/axios/api.url'
 import { post, get } from '@/axios/index'
 import vm from '@/event.js'
 import Vue from 'vue'
+import peoplelist from '../components/participants.vue' //参会者组件
+import consolebottom from '../components/webrtcBottom.vue' //底部组件
+
 export default {
+  name: 'partlist',
   data() {
     return {
       contdata: [
@@ -76,6 +75,7 @@ export default {
       showDropdowm: true,
     }
   },
+  components: { peoplelist, consolebottom },
   watch: {
     //监听参会者状态，例如总数，开关摄像头数量
     plist(newv, oldv) {
@@ -108,14 +108,9 @@ export default {
       'isgetplist',
       'HideShowView',
       'closecmarenum',
-      // 'plist',
     ]),
-    // plist() {
-    //   return this.$store.state.plist
-    // },
   },
   methods: {
-   
     // 显示/隐藏下拉列表
     clickmyself(id) {
       if (id == this.joininfo.userId) {
@@ -274,11 +269,6 @@ export default {
       ]
     },
 
-    //关闭参会者列表
-    closeDrawer() {
-      this.$store.commit('setpeoplelist', false)
-    },
-
     //参会者列表背景颜色的设置
     bcolor(key) {
       if (key % 2 == 0) {
@@ -290,10 +280,6 @@ export default {
 
     //获取参会者列表
     getplist() {
-      // console.log(this.isgetplist)
-      if (!this.isgetplist) {
-        return
-      }
       const joininf = window.localStorage.getItem('joininfo')
       const joininfo = JSON.parse(joininf)
       const apiurl = APIUrl.util.getParticipant
@@ -301,7 +287,7 @@ export default {
         .then((res) => {
           console.log(res, '子组件参会者')
           if (res.status == 200) {
-            // console.log(res.data.participant)
+            console.log(res.data.participant)
             this.$store.commit('setisgetplist', 0)
             this.plist = res.data.participant
             this.$store.commit('setplist', res.data.participant)
@@ -330,8 +316,10 @@ export default {
 
     //发送消息
     send_msg(type, message, uid, key) {
+      console.log(type, message, uid, key)
       if (type == 'video') {
         const data = this.plist[key]
+        console.log(data)
         Vue.set(this.plist, key, {
           admin: data.admin,
           avatar: data.avatar,
@@ -340,7 +328,7 @@ export default {
           userId: data.userId,
           username: data.username,
         })
-        this.$emit('Camera', message ? true : false)
+        vm.$emit('Camera', message ? true : false)
       }
       if (type == 'scene') {
         // this.plist[key].scene = message ? 0 : 1;
@@ -354,6 +342,7 @@ export default {
           username: data.username,
         })
         this.$emit('Audio', message ? true : false)
+        vm.$emit('audio', message ? true : false)
       }
 
       if (type == 'Hostvideo' || type == 'Hostscene') {
@@ -502,7 +491,12 @@ export default {
 </script>
 
 <style>
-.participants-main .bottom {
+.participants {
+  width: 100%;
+  height: 100vh;
+  background-color: #fff;
+}
+.participants .bottom {
   position: absolute;
   left: 0;
   bottom: 2vh;

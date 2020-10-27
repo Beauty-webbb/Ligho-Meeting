@@ -32,8 +32,10 @@
         </div>
       </div>
       <!-- 共享视图结束，演讲者视图开始 -->
-      <div v-else-if="pspeak" style="width:100%;height:100%">
+      <div v-else-if="pspeak" style="width:100%;height:100%" class="father">
         <video oncontextmenu="return true;" :style="{ width: '100%',height:'100%' }" autoplay playsinline id="share"></video>
+        <i title="关闭全屏视图" class="iconfont icon-close" v-if="fullScreenState" @click="closeFullScreen"
+          style="position:absolute; top:0;right:11%;color:#00ccff;cursor:pointer;font-size:30px;"></i>
         <div class="sharename" v-if="!videoStatus" :style="{ width: '79%',height:'100%',background:'#000',color:'#fff' }">{{joininfo.username}}</div>
         <div>
           <div class="pspeak-list" id="pspeak-list-remove" :style="{right:pspeakRight+'px',top:pspeakTop+'px'}">
@@ -41,8 +43,8 @@
               <i :class="slideToggle?'el-icon-arrow-up':'el-icon-arrow-down'" style='color:#fff;'></i>
             </div>
             <div class="pspeak-list-cont">
-              <div class="mainvideo" v-for="(item, key) in users" :key="key" :id="'main' + item.userId"
-                :style="{width:'100%',display:borderid == item.userId ? 'none' : 'block'}">
+              <!-- display:borderid == item.userId ? 'none' : 'block' -->
+              <div class="mainvideo" v-for="(item, key) in users" :key="key" :id="'main' + item.userId" :style="{width:'100%',}">
                 <span style="display: none;width:100%;height:112.5px;text-align:center;font-size:12px;line-height:100px;background:black;color:#fff"
                   :id="'d' + item.userId">{{ item.displayName }}</span>
                 <div style="width:100%;height:112.5px;position:absolute;color:#fff;" :id="'name' + item.userId">
@@ -54,8 +56,8 @@
                   backgroundColor:'rgba(0,0,0,0.5)'
                 }">{{ item.displayName }}</span>
                 </div>
-                <video oncontextmenu="return true;" :style="{ width: '200px', height: '112.5px' ,background:'black'}" autoplay playsinline
-                  :id="item.userId"></video>
+                <video @dblclick="speakFullScreen(item.userId)" oncontextmenu="return true;"
+                  :style="{ width: '200px', height: '112.5px' ,background:'black'}" autoplay playsinline :id="item.userId"></video>
               </div>
 
               <!-- 上下翻页按钮 -->
@@ -84,6 +86,9 @@
         </div>
       </div>
 
+      <button id="btnn" @click="opennew">打开子窗口</button>
+      <button id="bt" @click="receive">接收数据</button>
+
       <!-- 直播地址 -->
       <div v-if="liveUrl">
         <div class="liveaddree" @click="liveslide">
@@ -105,6 +110,8 @@
     </div>
     <vue-context-menu :contextMenuData="contextMenuData" @hideview="hideview(1)" @openview="openViewVideo">
     </vue-context-menu>
+    <!-- <button id="btnn" @click="openbtn">打开子窗口</button> -->
+
     <!-- 参会者以及控制栏组件 -->
     <peoplelist ref="peoplelist" @Camera="muteLocalCamera" @Audio="muteLocalMic" @hidecamera="hidecamera" @sethideshowview="sethideshowview"
       @showcamera="showcamera"></peoplelist>
@@ -150,7 +157,8 @@
 </template>
 
 <script>
-// const { ipcRenderer } = window.require("electron"); //渲染进程与主进程通讯方法
+// const { ipcRenderer } = window.require('electron') //渲染进程与主进程通讯方法
+// const path = window.require('path')
 import consolebottom from '../components/webrtcBottom.vue' //底部组件
 import peoplelist from '../components/participants.vue' //参会者组件
 import APIUrl from '@/axios/api.url'
@@ -159,6 +167,7 @@ import { post, get } from '@/axios/index'
 import '../util/sdk.js' //引入sdk
 import { mapState } from 'vuex' //引入vuex
 import { MessageBox } from 'element-ui'
+import vm from '@/event.js'
 export default {
   name: 'webrtc',
   data() {
@@ -241,6 +250,7 @@ export default {
       'isgetplist',
       'liveUrl',
       'plist',
+      'fullScreenState',
     ]),
   },
   components: {
@@ -265,6 +275,7 @@ export default {
   },
 
   watch: {
+    // 监听是否在直播中
     liveUrl(newv, oldv) {
       if (newv) {
         this.liveToggle = true
@@ -314,6 +325,12 @@ export default {
         this.getplist()
       }
     },
+    fullScreenState(newv, oldv) {
+      console.log(newv)
+      if (!newv) {
+        this.callBackInit()
+      }
+    },
   },
   destroyed() {
     this.socket.close()
@@ -323,9 +340,6 @@ export default {
     this.serverTimeoutObj = null
   },
   mounted() {
-    // if (this.pagenum == 1) {
-    //   document.querySelector('.el-icon-arrow-left').style.display = 'none'
-    // }
     const that = this
     const { ipcRenderer } = window.require('electron')
     window.onresize = () => {
@@ -339,11 +353,28 @@ export default {
     ipcRenderer.on('leave', (event, message) => {
       this.leave()
     })
+
     if (this.speak) {
       this.ResizeDetectorMaker()
     }
   },
   methods: {
+    receive() {
+      console.log(123)
+      vm.$on('videoo', (data) => {
+        console.log('接收数据', data)
+      })
+    },
+
+    // 打开子窗口
+    opennew() {
+      const { ipcRenderer, BrowserWindow } = window.require('electron')
+      ipcRenderer.send('opennew', 'peoplelist')
+    },
+    // 关闭双击放大视图
+    closeFullScreen() {
+      this.$store.commit('setfullScreenState', 0)
+    },
     copyLink() {
       if (this.liveUrl) {
         let _this = this
@@ -363,6 +394,7 @@ export default {
     // 上一页
     prepage() {
       this.pagenum--
+      console.log(this.pagenum)
       if (this.pagenum == 1) {
         document.querySelector('.el-icon-arrow-left').style.display = 'none'
       }
@@ -384,7 +416,6 @@ export default {
           this.openview(dom)
         }, 300)
       } else {
-        // this.unSubscribe(userId)
         setTimeout(() => {
           // 订阅远端相机流
           this.sdk.configRemoteCameraTrack(userId, true, true)
@@ -493,7 +524,6 @@ export default {
           }, 500)
         }
       })
-      // this.closeopensub(this.newusers)
     },
 
     // 提示用户全屏
@@ -589,7 +619,71 @@ export default {
       )
     },
 
-    //全屏视图
+    // 演讲者视图下双击放大
+    speakFullScreen(id) {
+      if (this.pspeak) {
+        this.$store.commit('setfullScreenState', 1)
+        if (id == this.joininfo.userId) {
+          this.closeView()
+          setTimeout(() => {
+            const dom = document.getElementById('share')
+            this.openview(dom)
+          }, 300)
+
+          setTimeout(() => {
+            this.users.forEach((item) => {
+              if (item.userId != id && item.userId != this.joininfo.userId) {
+                this.sdk.configRemoteCameraTrack(item.userId, true, true)
+                // 订阅远端音频流
+                this.sdk.configRemoteAudio(item.userId, true)
+                this.sdk
+                  .subscribe(item.userId + '')
+                  .then((res) => {
+                    var dom = document.getElementById(item.userId)
+                    this.sdk.setDisplayRemoteVideo(item.userId, dom, 1)
+                  })
+                  .catch((err) => {
+                    console.log('subscribe失败', err)
+                  })
+              }
+            })
+            // 订阅远端相机流
+          }, 300)
+        } else {
+          setTimeout(() => {
+            // 订阅远端相机流
+            this.sdk.configRemoteCameraTrack(id, true, true)
+            // 订阅远端音频流
+            this.sdk.configRemoteAudio(id, true)
+            this.sdk
+              .subscribe(id + '')
+              .then((res) => {
+                var dom = document.getElementById('share')
+                this.sdk.setDisplayRemoteVideo(id, dom, 1)
+                this.closecmare.forEach((item, key) => {
+                  if (item == id) {
+                    this.muteCamera(id, 0)
+                    if (this.HideShowView) {
+                      this.hidecamera(id)
+                      this.sethideshowview(this.closecmarenum)
+                    }
+                  }
+                })
+              })
+              .catch((err) => {
+                console.log('subscribe失败', err)
+              })
+          }, 500)
+          this.closeView()
+          setTimeout(() => {
+            const dom = document.getElementById(this.joininfo.userId)
+            this.openview(dom)
+          }, 300)
+        }
+      }
+    },
+
+    // 画廊视图下双击全屏全屏视图
     FullScreenVideo(id) {
       if (this.FullScreenVideostatus) {
         this.FullScreenVideostatus = 0
@@ -629,6 +723,7 @@ export default {
       // 画廊视图
       if (!this.pspeak) {
         console.log(this.users, 'list')
+        this.$store.commit('setfullScreenState', 0)
         this.closeopensub(this.users)
         return
       }
@@ -895,20 +990,22 @@ export default {
         this.calculation_w_h(document.body.clientWidth) //动态逻辑
       })
 
-      //音频回调监听
-      this.sdk.on('onAudioLevel', (data) => {
-        var userId = ''
-        var level = 0
-        data.forEach((item) => {
-          if (item.level > level) {
-            level = item.level
-            userId = item.userId
+      if (!this.fullScreenState) {
+        //音频回调监听
+        this.sdk.on('onAudioLevel', (data) => {
+          var userId = ''
+          var level = 0
+          data.forEach((item) => {
+            if (item.level > level) {
+              level = item.level
+              userId = item.userId
+            }
+          })
+          if (level !== 0) {
+            this.setborder(userId)
           }
         })
-        if (level !== 0) {
-          this.setborder(userId)
-        }
-      })
+      }
     },
 
     //取消/打开订阅
@@ -957,7 +1054,8 @@ export default {
       }
       if (!this.pspeak) {
         if (this.borderid) {
-          document.getElementById('main' + this.borderid).style.border = 'none'
+          // 打开自己小视图的预览
+          document.getElementById('main' + this.borderid).style.border = 'block'
         }
         document.getElementById('main' + id).style.border = '1px solid #00ccff'
         this.borderid = id
@@ -1707,12 +1805,17 @@ export default {
                 }
               })
             }
+          } else if (data.message.userId == this.joininfo.userId) {
+            this.muteLocalCamera(data.message.video ? false : true)
           }
           return
         case 'scene':
+          console.log(data)
           if (data.message.userId !== this.joininfo.userId) {
             // this.muteLocalMic(data.message.scene ? false : true)
             this.$refs.peoplelist.setplist('save', data.message)
+          } else if (data.message.userId == this.joininfo.userId) {
+            this.muteLocalMic(data.message.scene ? false : true)
           }
           return
         case 'share':

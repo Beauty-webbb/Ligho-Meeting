@@ -22,6 +22,7 @@ export default new Vuex.Store({
     'closecmarenum': 0, //关闭摄像头用户的数量
     'liveUrl':'', // 直播间地址
     'plist':[], // 参会者列表
+    'fullScreenState':0
   },
   mutations: {
     setpeoplelist(state, v) {
@@ -65,6 +66,9 @@ export default new Vuex.Store({
     },
     setplist(state, v) {
       state.plist = v;
+    },
+    setfullScreenState(state, v) {
+      state.fullScreenState = v
     },
   },
   actions: {},

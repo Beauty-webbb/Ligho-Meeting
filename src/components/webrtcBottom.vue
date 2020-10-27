@@ -502,10 +502,16 @@ export default {
       // $('.bottom-content').stop().fadeTo(800, 0)
     },
 
+    opennew() {
+      const { ipcRenderer, BrowserWindow } = window.require('electron')
+      ipcRenderer.send('opennew', 'peoplelist')
+    },
+
     //点击事件
     webrtcbottom(type) {
       if (type == 'chz') {
-        this.$store.commit('setpeoplelist', true)
+        // this.$store.commit('setpeoplelist', true)
+        this.opennew()
       } else if (type == 'video') {
         this.send_msg('video', this.videoStatus)
         this.$emit('Camera', this.videoStatus ? true : false)
@@ -518,8 +524,8 @@ export default {
         // this.$store.commit('setinvitation',true);
         this.invitation = true
       } else if (type == 'share') {
-        // this.$emit('share')
-        this.$emit('shareScreen')
+        this.$emit('share')
+        // this.$emit('shareScreen')
       } else if (type == 'set') {
         this.isconfig = true
         setTimeout(() => {
