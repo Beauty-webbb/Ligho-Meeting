@@ -1,19 +1,33 @@
 <template>
   <div class="bottom-main" @mouseover="mouseOver()" @mouseleave="mouseLeave()">
-    <div class="bottom-content" v-if="bottom_img_show">
+    <!-- 底部菜单栏 -->
+    <div class="bottom-content" v-if="bottom_img_show" style="position:relative;">
+      <!-- 选择推流地址 -->
+      <div v-if="liveAdd"
+        style="background:rgba(0,0,0,.3);padding:8px 0;padding-left:30px;border-radius:5px;z-index:99999;position:absolute;top:-100px;right:35%">
+        <el-radio-group v-model="changeAddress">
+          <el-radio label="1">使用自己的推流地址</el-radio><br>
+          <el-radio style="margin-top:10px;" label="2">使用轻直播推流地址</el-radio>
+        </el-radio-group><br>
+        <el-button @click="liveAdd=false" size="mini" round style="background:#fff;color:#00ccff;border:0;">取消</el-button>
+        <el-button @click="submit" size="mini" round style="background:#00ccff;color:#fff;margin:10px auto 0 43px;border:0;">确定</el-button>
+      </div>
       <div class="bottom-img">
         <div v-for="(item, key) in bottoms" :key="key" style="text-align: center;">
           <img @click="webrtcbottom(item.type)" :src="item.img" />
         </div>
       </div>
       <!-- 底部文字 -->
-      <div class="bottomtext" style="text-align: center">
-        <h3 v-for="(item, key) in bottoms" :key="key" style="margin: 0; color: white; font-size: 14px">
-          {{ item.text }}
-        </h3>
+      <div class="bottomtext">
+        <div v-for="(item, key) in bottoms" :key="key" style="text-align: center">
+          <h3 style=" color: white; font-size: 14px">
+            {{ item.text }}
+          </h3>
+        </div>
       </div>
     </div>
 
+    <!-- 离开/退出会议按钮 -->
     <el-dialog title="您需要做的操作是？" :visible.sync="leave" :modal="false" width="30%" center>
       <span slot="footer" class="dialog-footer">
         <el-button @click="leavemeet('exit')">离开会议</el-button>
@@ -102,7 +116,7 @@
     </el-dialog>
 
     <!-- 设置信息 -->
-    <el-dialog title="设置" :visible.sync="isconfig" :modal="false" width="60%" top="15vh" center>
+    <el-dialog title="设置" :visible.sync="isconfig" :modal="false" width="71%" top="15vh" center>
       <!-- <span>需要注意的是内容是默认不居中的</span> -->
       <div class="config-main">
         <div class="config-main-left">
@@ -186,21 +200,23 @@
       </div>
     </el-dialog>
 
-    <!-- 直播推流地址选择 -->
-    <el-dialog title="请选择直播推流地址" :visible.sync="livaAdd" :modal="false" width="40%" top="15vh" center @close='closeDialog'>
-      使用自己的推流地址：<el-input style="width:75%" v-model="input" placeholder="请输入推流地址"></el-input>
-      <div style="margin-top:20px;margin-left:57px;">
-        轻直播地址：<el-checkbox class="checkbox" v-model="livechecked">轻直播地址</el-checkbox>
+    <!-- 输入自己的推流地址 -->
+    <el-dialog title="请输入直播地址" :visible.sync="edterLiveAdd" :modal="false" width="40%" top="15vh" center @close='closeDialog'>
+      您的推流地址：<el-input style="width:75%" v-model="input" placeholder="请输入推流地址"></el-input><br>
+      <div style="margin-top:20px;">
+        您的观看地址：<el-input style="width:75%" v-model="watchAddress" placeholder="请输入观看地址"></el-input>
       </div>
-
+      <!-- <div style="margin-top:20px;margin-left:57px;">
+        轻直播地址：<el-checkbox class="checkbox" v-model="livechecked">轻直播地址</el-checkbox>
+      </div> -->
       <span slot="footer" class="dialog-footer">
-        <el-button @click="livaAdd = false">取 消</el-button>
-        <el-button style="background:#00ccff;border:0" type="primary" @click="startlive">确 定</el-button>
+        <el-button @click="edterLiveAdd = false" round>取 消</el-button>
+        <el-button style="background:#00ccff;border:0" type="primary" @click="startlive" round>确 定</el-button>
       </span>
     </el-dialog>
+
     <!-- 录制倒计时 -->
     <span class="countdown" v-if="count">{{count}}</span>
-    <!-- <audio ref="audio" src="" autoplay></audio> -->
   </div>
 </template>
 
@@ -325,7 +341,10 @@ export default {
         { id: 3, label: '四格' },
         { id: 4, label: '九格' },
       ], // 直播窗格数设置
-      livaAdd: false, // 是否展示dislog
+      liveAdd: false, // 是否展示选择推流地址
+      edterLiveAdd: false, // 是否展示推流地址输入框
+      changeAddress: '', // 推流地址选择
+      watchAddress: '', // 用户输入的观看地址
       live: 0, // 直播状态
       livedata: {
         TaskProfile: 9,
@@ -367,18 +386,8 @@ export default {
     // setTimeout(() => {
     //   $('.bottom-content').stop().fadeTo(800, 0)
     // }, 8000)
-    // if (this.admin == 0 || this.admin == 3) {
-    //   this.bottoms.splice(5, 2)
-    //   this.$nextTick(() => {
-    //     document.querySelector('.bottom-img').style.width = '25%'
-    //     document.querySelector('.bottomtext').style.width = '50vh'
-    //   })
-    // } 
-    // else {
-      
-    //   document.querySelector('.bottom-img').style.width = '65vh'
-    //   document.querySelector('.bottomtext').style.width = '65vh'
-    // }
+
+    // this.isHavetands()
   },
   watch: {
     outputindex(newv, ildv) {
@@ -403,7 +412,7 @@ export default {
         this.bottoms[4].img = require('../assets/webrtcs/share.png')
         this.bottoms[4].text = '共享'
       } else {
-        this.bottoms[4].text = '停止共享'
+        this.bottoms[4].text = '共享中'
         this.bottoms[4].img = require('../assets/webrtcs/share.png')
       }
     },
@@ -416,7 +425,7 @@ export default {
         this.bottoms[5].text = '录制'
       } else {
         this.bottoms[5].img = require('../assets/webrtcs/recing.png')
-        this.bottoms[5].text = '停止录制'
+        this.bottoms[5].text = '录制中'
       }
     },
     live(newv, oldv) {
@@ -425,22 +434,12 @@ export default {
         this.bottoms[6].text = '直播'
       } else {
         this.bottoms[6].img = require('../assets/webrtcs/liveplaying.gif')
-        this.bottoms[6].text = '停止直播'
+        this.bottoms[6].text = '直播中'
       }
     },
-    // admin(newv, oldv) {
-    //   if (this.admin == 0 || this.admin == 3) {
-    //     this.bottoms.splice(5, 2)
-    //     this.$nextTick(() => {
-    //       document.querySelector('.bottom-img').style.width = '25%'
-    //       document.querySelector('.bottomtext').style.width = '50vh'
-    //     })
-    //   } 
-    //   // else {
-    //   //   document.querySelector('.bottom-img').style.width = '65vh'
-    //   //   document.querySelector('.bottomtext').style.width = '65vh'
-    //   // }
-    // },
+    // plist(newv,oldv){
+    //   this.isHavetands()
+    // }
   },
   computed: {
     ...mapState([
@@ -452,6 +451,37 @@ export default {
     ]),
   },
   methods: {
+    // 判断是否有录制和直播的权限
+    isHavetands() {
+      this.plist.forEach((v) => {
+        if (v.userId == this.joininfo.userId) {
+          if (!v.streaming) {
+            this.bottoms.splice(5, 2)
+            this.$nextTick(() => {
+              document.querySelector('.bottom-img').style.width = '25%'
+              document.querySelector('.bottomtext').style.width = '50vh'
+            })
+          } else {
+            document.querySelector('.bottom-img').style.width = '65vh'
+            document.querySelector('.bottomtext').style.width = '65vh'
+          }
+        }
+      })
+    },
+    // 选择推流地址
+    submit() {
+      console.log(this.changeAddress)
+      if (!this.changeAddress) {
+        this.$message.warning('请选择直播推流地址')
+        return false
+      }
+      if (this.changeAddress == 1) {
+        this.edterLiveAdd = true
+      } else {
+        this.startlive()
+      }
+    },
+
     //开启全屏loading
     openFullScreen2(title) {
       this.Fullloading = this.$loading({
@@ -510,22 +540,28 @@ export default {
     //点击事件
     webrtcbottom(type) {
       if (type == 'chz') {
-        // this.$store.commit('setpeoplelist', true)
-        this.opennew()
+        // 浏览器运行打开参会者列表
+        this.$store.commit('setpeoplelist', true)
+        // windows运行打开参会者列表
+        // this.opennew()
       } else if (type == 'video') {
         this.send_msg('video', this.videoStatus)
         this.$emit('Camera', this.videoStatus ? true : false)
+        // this.$emit('setvideo', this.videoStatus ? true : false)
       } else if (type == 'audio') {
         this.send_msg('scene', this.audioStatus)
         this.$emit('Audio', this.audioStatus ? true : false)
+        // this.$emit('setscene', this.audioStatus ? true : false)
       } else if (type == 'leave') {
         this.leave = true
       } else if (type == 'invitation') {
         // this.$store.commit('setinvitation',true);
         this.invitation = true
       } else if (type == 'share') {
-        this.$emit('share')
-        // this.$emit('shareScreen')
+        // windows运行
+        // this.$emit('share')
+        // 浏览器运行调用方法
+        this.$emit('shareScreen')
       } else if (type == 'set') {
         this.isconfig = true
         setTimeout(() => {
@@ -534,26 +570,31 @@ export default {
           this.getDefinition()
         }, 100)
       } else if (type == 'rec') {
-        this.startrec()
+        this.plist.forEach((v) => {
+          if (v.userId == this.joininfo.userId) {
+            if (!v.transcribe) {
+              this.$message.warning('您无录制权限')
+            } else {
+              this.startrec()
+            }
+          }
+        })
       } else if (type == 'live') {
         if (this.live) {
           this.stoplive()
         } else {
           // 非主持人限制录制和直播
-          // if (!this.admin || this.admin == 3) {
-          //   this.$message.warning('您无直播权限')
-          //   return false
-          // }
-
-          // 非主持人限制录制和直播
           this.plist.forEach((v) => {
             if (v.userId == this.joininfo.userId) {
               if (!v.streaming) {
+                // console.log('无直播')
                 this.$message.warning('您无直播权限')
+                return false
+              } else {
+                this.liveAdd = true
               }
             }
           })
-          this.livaAdd = true
         }
       }
     },
@@ -739,43 +780,55 @@ export default {
     // 开启直播
     startlive() {
       console.log(this.admin)
-      this.livaAdd = false
+      this.liveAdd = false
+      // 用户自己的推流地址
       if (this.input) {
         this.livedata.StreamURL = this.input
       }
+      // 轻直播地址
       if (this.liveId && this.livepwd) {
         this.livedata.livemobile = this.liveId
         this.livedata.livepassword = this.livepwd
       }
-      if (!this.input && !this.livechecked) {
-        this.$message.warning('请选择推流地址')
-        this.livaAdd = true
-      } else if (this.input && this.livechecked) {
-        this.$message.warning('只能选择一个推流地址哦')
-        this.livaAdd = false
+      // 必须输入推流和观看地址
+      if (this.changeAddress == 1) {
+        if (!this.input || !this.watchAddress) {
+          this.$message.warning('请输入完整地址')
+          return false
+        }
       }
+
       var apiurl = APIUrl.util.StartMPUTask
       this.livedata.ChannelId = this.joininfo.channelId
       this.livedata.userId = this.joininfo.userId
-      this.livedata.type = this.livechecked ? 'program' : ''
+      // 使用轻直播传type为program
+      this.livedata.type = this.changeAddress == 2 ? 'program' : ''
       var data = this.livedata
       console.log(data)
-      // this.openFullScreen2('直播加载中……')
       post(apiurl, data).then((res) => {
         console.log('直播', res)
         if (res.status == 200) {
-          // this.Fullloading.close()
           this.live = 1
           this.$message.success('已开启直播')
-          this.$store.commit('setliveUrl', res.data.qr_code_url)
           window.localStorage.setItem('liveTaskId', res.data.TaskId)
           this.TaskId = res.data.TaskId
-          this.$alert(res.data.qr_code_url, '您的直播间地址：', {
-            confirmButtonText: '确定',
-            callback: (action) => {
-              console.log(action)
-            },
-          })
+          if (this.changeAddress == 1) {
+            this.$store.commit('setliveUrl', this.watchAddress)
+            this.$alert(this.watchAddress, '您的直播间地址：', {
+              confirmButtonText: '确定',
+              callback: (action) => {
+                console.log(action)
+              },
+            })
+          } else {
+            this.$store.commit('setliveUrl', res.data.qr_code_url)
+            this.$alert(res.data.qr_code_url, '您的直播间地址：', {
+              confirmButtonText: '确定',
+              callback: (action) => {
+                console.log(action)
+              },
+            })
+          }
         } else if (res.status == 401) {
           this.$message.warning(res.data)
         }
@@ -991,6 +1044,16 @@ export default {
   width: 100%;
   height: 8vh;
 }
+// 单选框样式
+.bottom-content .el-radio__input.is-checked + .el-radio__label {
+  color: #00ccff !important;
+}
+.bottom-content .el-radio__input.is-checked .el-radio__inner {
+  background-color: #00ccff !important;
+}
+.bottom-content .el-radio {
+  color: #fff !important;
+}
 .bottom-img {
   width: 65vh;
   background: rgba(0, 0, 0, 0.5);
@@ -1012,17 +1075,12 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   align-content: center;
-  justify-content: space-around;
+  justify-content: center;
   margin-top: 3px;
-  h3 {
-    &:nth-child(1) {
-      margin-right: -6px !important;
-    }
-    &:nth-child(3) {
-      margin-right: -5px !important;
-    }
-    &:nth-child(n + 5) {
-      margin-right: 3px !important;
+  div {
+    h3 {
+      width: 5vh;
+      margin: 0 1vh;
     }
   }
 }
@@ -1114,6 +1172,8 @@ export default {
     }
   }
 }
+
+// 录制倒计时效果
 .countdown {
   position: absolute;
   bottom: 34vh;

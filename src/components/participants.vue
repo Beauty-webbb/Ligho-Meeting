@@ -18,14 +18,16 @@
           </el-input>
         </div>
       </div>
-      <div class="peoplelist" v-for="(item,key) in plist" :key="key" :style="{'background-color':bcolor(key)}" @click="clickmyself(item.userId)">
+      <!-- @click="clickmyself(item.userId)" -->
+      <div class="peoplelist" v-for="(item,key) in plist" :key="key" :style="{'background-color':bcolor(key)}">
         <el-dropdown @command="handleCommand" placement="bottom" trigger="click"
           style="width: 70%; height: 3.5vh; padding-left: 1vh; font-size: 19px; display: flex; align-items: center;">
           <div class="peoplelist-left">
             <div class="pavatar"><img style="width: 100%;" :src="item.avatar" /></div>
             <span>{{item.username}}</span>
           </div>
-          <el-dropdown-menu v-if="showDropdowm">
+          <!-- v-if="showDropdowm" -->
+          <el-dropdown-menu>
             <el-dropdown-item v-if="admin==1||admin==3" @click="moveadmin(item.userId)" :command="{type:'move',id:item.userId,message:item.admin}">
               {{admin==3?'收回主持人权限':'移交主持人权限'}}
             </el-dropdown-item>
@@ -37,7 +39,14 @@
               :command="{type:'streaming',id:item.userId,message:item.streaming}">
               {{item.streaming?'收回直播权限':'赋予直播权限'}}
             </el-dropdown-item>
-
+            <el-dropdown-item v-if="admin==1||admin==3" @click="allScene(item.userId)"
+              :command="{type:'allscene',id:item.userId,message:allscene?1:0}">
+              {{allscene?'解除全体禁言':'全体禁言'}}
+            </el-dropdown-item>
+            <el-dropdown-item v-if="admin==1||admin==3" @click="moveOutMeet(item.userId)"
+              :command="{type:'remove',id:item.userId,message:item.username}">
+              移出会议
+            </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
 
@@ -74,6 +83,7 @@ export default {
       joininfo: {},
       moveadminstate: true,
       showDropdowm: true,
+      allscene: false, // 是否全体禁言
     }
   },
   watch: {
@@ -115,7 +125,6 @@ export default {
     // },
   },
   methods: {
-   
     // 显示/隐藏下拉列表
     clickmyself(id) {
       if (id == this.joininfo.userId) {
@@ -129,7 +138,11 @@ export default {
     // 点击子菜单的回调
     handleCommand(data) {
       // console.log(data)
-      if (data.id == this.joininfo.userId) {
+      if (
+        data.id == this.joininfo.userId &&
+        data.type !== 'allscene' &&
+        data.type !== 'remove'
+      ) {
         this.$message.warning('不能操作自己')
         return false
       } else if (this.admin == 0) {
@@ -144,7 +157,54 @@ export default {
         this.handtranscribe(data)
       } else if (data.type == 'streaming') {
         this.handstreaming(data)
+      } else if (data.type == 'allscene') {
+        this.allScene(data)
+      } else if (data.type == 'remove') {
+        this.moveOutMeet(data)
       }
+    },
+
+    // 踢出会议
+    moveOutMeet(data) {
+      // console.log(data)
+      const activepush = APIUrl.util.activepush
+      post(activepush, {
+        userId: data.id,
+        meetingId: this.joininfo.channelId,
+        type: data.type,
+      }).then((res) => {
+        console.log('踢人请求', res)
+        if (res.status == 200) {
+          this.$message.success(`已将${data.message}移出会议`)
+          this.plist = this.plist.filter((v) => {
+            return v.userId !== data.id
+          })
+        } else {
+          this.$message.error(res.message)
+        }
+      })
+    },
+
+    // 全体静音
+    allScene(data) {
+      console.log(data)
+      const activepush = APIUrl.util.activepush
+      post(activepush, {
+        userId: data.id,
+        message: data.message,
+        meetingId: this.joininfo.channelId,
+        type: data.type,
+      }).then((res) => {
+        console.log('全体禁音请求', res)
+        if (res.status == 200) {
+          if (this.allscene) {
+            this.$message.success('已解除全体禁言')
+          } else {
+            this.$message.success('已开启全体禁言')
+          }
+          this.allscene = !this.allscene
+        }
+      })
     },
 
     // 赋予直播权限
@@ -225,30 +285,40 @@ export default {
           .catch(() => {})
         // 收回权限
       } else if (this.admin == 3) {
-        this.$confirm(`您确定要收回${name}的主持人权限吗?`, '温馨提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
+        this.plist.forEach((item) => {
+          if (item.userId == data.id) {
+            name = item.username
+            if (item.admin !== 2) {
+              this.$message.warning(`${name}不是主持人哦`)
+              return false
+            } else {
+              this.$confirm(`您确定要收回${name}的主持人权限吗?`, '温馨提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+              })
+                .then(() => {
+                  const apiurl = APIUrl.util.giveMeetHost
+                  post(apiurl, {
+                    meetingId: this.joininfo.channelId,
+                    userId: this.joininfo.userId,
+                  }).then((res) => {
+                    console.log('收回权限', res)
+                    if (res.status == 200) {
+                      // this.moveadminstate = true
+                      // this.$message.success(`您已收回主持人权限`)
+                      this.$store.commit('setisgetplist', 1)
+                    } else {
+                      this.$message.error(res.message)
+                    }
+                  })
+                })
+                .catch((err) => {
+                  console.log('取消', err)
+                })
+            }
+          }
         })
-          .then(() => {
-            const apiurl = APIUrl.util.giveMeetHost
-            post(apiurl, {
-              meetingId: this.joininfo.channelId,
-              userId: this.joininfo.userId,
-            }).then((res) => {
-              console.log('收回权限', res)
-              if (res.status == 200) {
-                // this.moveadminstate = true
-                // this.$message.success(`您已收回主持人权限`)
-                this.$store.commit('setisgetplist', 1)
-              } else {
-                this.$message.error(res.message)
-              }
-            })
-          })
-          .catch((err) => {
-            console.log('取消', err)
-          })
       } else {
         this.$message.warning('您无权限')
       }

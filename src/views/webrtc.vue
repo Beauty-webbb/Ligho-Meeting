@@ -1,7 +1,7 @@
 <template>
   <div v-if="showmeeting">
     <div v-if="shareStatus"
-      style="width:15vh;height:20px;position:absolute;text-align: center;color:#fff;left:calc(50% - 5vh);z-index:9;background:red;line-height:20px;border-radius:20px">
+      style="width:15vh;height:20px;position:absolute;text-align: center;color:#fff;left:calc(50% - 5vh);z-index:9;background: rgba(255, 255, 255, 0.3);line-height:20px;border-radius:20px">
       您正在共享屏幕</div>
     <div class="main-video">
       <div class="changesview" @click="changevideoview()">
@@ -86,9 +86,6 @@
         </div>
       </div>
 
-      <button id="btnn" @click="opennew">打开子窗口</button>
-      <button id="bt" @click="receive">接收数据</button>
-
       <!-- 直播地址 -->
       <div v-if="liveUrl">
         <div class="liveaddree" @click="liveslide">
@@ -96,26 +93,28 @@
           <i :class="liveToggle?'el-icon-caret-top':'el-icon-caret-bottom'" style='color:#fff;font-size:20px;'></i>
         </div>
         <ul class="livecontent">
-          <li class="cobyDomObj" data-clipboard-action="copy" @click="copyLink" :data-clipboard-text="liveUrl">复制地址</li>
-          <li>
+          <li class="cobyDomObj " data-clipboard-action="copy" @click="copyLink" :data-clipboard-text="liveUrl">复制地址</li>
+          <li @click="openAddress" class="liveAddress">
+            <!-- 打开地址 -->
             <a :href="liveUrl" target="_blank">打开地址</a>
           </li>
-          <li>直播二维码</li>
+          <li class="liveqrcode" @mouseover="mouseOver()" @mouseleave="mouseLeave()">直播二维码</li>
         </ul>
+        <div v-if="showQrcode" id="qrcode" ref="qrcode"></div>
       </div>
 
+      <!-- 左右翻页按钮 -->
       <i v-if="!pspeak" @click="prepage" class="el-icon-arrow-left"></i>
       <i v-if="!pspeak" @click="nextpage" class="el-icon-arrow-right"></i>
 
     </div>
     <vue-context-menu :contextMenuData="contextMenuData" @hideview="hideview(1)" @openview="openViewVideo">
     </vue-context-menu>
-    <!-- <button id="btnn" @click="openbtn">打开子窗口</button> -->
 
     <!-- 参会者以及控制栏组件 -->
     <peoplelist ref="peoplelist" @Camera="muteLocalCamera" @Audio="muteLocalMic" @hidecamera="hidecamera" @sethideshowview="sethideshowview"
       @showcamera="showcamera"></peoplelist>
-    <consolebottom ref="consolebottom" @Camera="muteLocalCamera" @Audio="muteLocalMic" @leave="leave" @share="share"
+    <consolebottom ref="consolebottom" @setqrcode="creatQrCode" @Camera="muteLocalCamera" @Audio="muteLocalMic" @leave="leave" @share="share"
       @changeaudiovideo="changeaudiovideo" @shareScreen="shareScreen"></consolebottom>
     <!-- 密码输入框 -->
     <el-dialog title="请会议输入密码" :visible.sync="pwdinput" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" width="30%"
@@ -157,8 +156,6 @@
 </template>
 
 <script>
-// const { ipcRenderer } = window.require('electron') //渲染进程与主进程通讯方法
-// const path = window.require('path')
 import consolebottom from '../components/webrtcBottom.vue' //底部组件
 import peoplelist from '../components/participants.vue' //参会者组件
 import APIUrl from '@/axios/api.url'
@@ -168,10 +165,12 @@ import '../util/sdk.js' //引入sdk
 import { mapState } from 'vuex' //引入vuex
 import { MessageBox } from 'element-ui'
 import vm from '@/event.js'
+import QRCode from 'qrcodejs2'
 export default {
   name: 'webrtc',
   data() {
     return {
+      showQrcode: false, // 是否展示二维码
       showlivebox: false,
       liveToggle: false, // 控制直接地址的展示
       slideToggle: false, // 控制小视图展开收起效果
@@ -249,9 +248,16 @@ export default {
       'shareStatus',
       'isgetplist',
       'liveUrl',
-      'plist',
+      // 'plist',
       'fullScreenState',
     ]),
+    // 计算属性是根据data中已有数据计算来得到新的数据，所以不能赋值，可使用set来解决
+    plist: {
+      get() {
+        return this.$store.state.plist
+      },
+      set() {},
+    },
   },
   components: {
     consolebottom,
@@ -359,25 +365,56 @@ export default {
     }
   },
   methods: {
-    receive() {
-      console.log(123)
-      vm.$on('videoo', (data) => {
-        console.log('接收数据', data)
+    // 鼠标移入显示二维码
+    mouseOver() {
+      this.creatQrCode(this.liveUrl)
+      this.showQrcode = true
+    },
+
+    // 鼠标移除隐藏二维码
+    mouseLeave() {
+      this.showQrcode = false
+    },
+
+    openAddress() {
+      // 客户端打开直播地址
+      window.open(this.liveUrl)
+    },
+    // 生成直播间二维码
+    creatQrCode(message, index) {
+      // $('.liveqrcode').addClass('libox').siblings('li').removeClass('libox')
+      // $('.liveqrcode').addClass('libox').siblings('li a').removeClass('libox')
+      this.showQrcode = true
+      // DOM元素加载完成后再生成二维码
+      this.$nextTick(() => {
+        var qrcode = new QRCode(this.$refs.qrcode, {
+          text: message, // 需要转换为二维码的内容
+          width: 100,
+          height: 100,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H,
+        })
       })
     },
 
-    // 打开子窗口
+    // windows打开子窗口
     opennew() {
       const { ipcRenderer, BrowserWindow } = window.require('electron')
       ipcRenderer.send('opennew', 'peoplelist')
     },
-    // 关闭双击放大视图
+
+    // 演讲者关闭双击放大视图
     closeFullScreen() {
       this.$store.commit('setfullScreenState', 0)
     },
+
+    // 复制直播间链接
     copyLink() {
       if (this.liveUrl) {
         let _this = this
+        // $('.cobyDomObj').addClass('libox').siblings('li').removeClass('libox')
+        // $('.cobyDomObj').addClass('libox').siblings('li a').removeClass('libox')
         let clipboardObj = new this.clipboard('.cobyDomObj')
         clipboardObj.on('success', function () {
           _this.$message.success('复制成功')
@@ -387,10 +424,13 @@ export default {
         clipboardObj.on('error', function () {
           _this.$message.success('复制失败')
         })
+        _this.showQrcode = false
+        _this.$refs.qrcode.innerHTML = ''
       } else {
         alert('没有直播')
       }
     },
+
     // 上一页
     prepage() {
       this.pagenum--
@@ -1771,6 +1811,7 @@ export default {
           }
           return
         case 'Hostscene':
+          console.log(data)
           if (data.message.userId == this.joininfo.userId) {
             this.muteLocalMic(data.message.scene ? false : true)
           }
@@ -1810,7 +1851,7 @@ export default {
           }
           return
         case 'scene':
-          console.log(data)
+          // console.log(data)
           if (data.message.userId !== this.joininfo.userId) {
             // this.muteLocalMic(data.message.scene ? false : true)
             this.$refs.peoplelist.setplist('save', data.message)
@@ -1850,7 +1891,7 @@ export default {
             this.plist.forEach((v) => {
               if (v.userId == data.message.userId) {
                 if (data.message.value == '0') {
-                  this.$message.success(v.username + '已称为主持人')
+                  this.$message.success(v.username + '已成为主持人')
                   this.$store.commit('setisgetplist', 1)
                 } else {
                   this.$message.success(v.username + '已收回主持人权限')
@@ -1871,8 +1912,10 @@ export default {
         // 移交录制权限
         case 'transcribe':
           console.log(data)
-          if (data.message.userId == this.joininfo.userId) {
-            // this.getplist()
+          if (
+            data.message.userId == this.joininfo.userId &&
+            (this.admin !== 1 || this.admin !== 2)
+          ) {
             if (data.message.vaule == '1') {
               this.$message.success('您已被赋予录制权限')
             } else {
@@ -1895,7 +1938,26 @@ export default {
             }
           }
           this.$store.commit('setisgetplist', 1)
-          // this.getplist()
+          return
+        case 'allscene':
+          console.log(data)
+          data.message.userId = this.joininfo.userId
+          this.muteLocalMic(data.message.scene ? false : true)
+          this.$refs.peoplelist.setplist('save', data.message)
+          return
+        // 主持人提出会议室
+        case 'remove':
+          console.log(data)
+          if (data.message.userId == this.joininfo.userId) {
+            this.$message.warning('您已被主持人移出会议')
+            setTimeout(() => {
+              this.leave('exit')
+            }, 1500)
+          } else {
+            this.plist = this.plist.filter((v) => {
+              return v.userId !== data.message.userId
+            })
+          }
           return
       }
     },
@@ -2004,6 +2066,9 @@ body {
   flex-wrap: wrap;
   align-content: center;
   justify-content: center;
+}
+.libox {
+  color: #00ccff !important;
 }
 .main-video .sharename {
   position: absolute;
@@ -2269,9 +2334,11 @@ body {
   text-align: center;
   line-height: 44px;
   cursor: pointer;
+  font-size: 14px;
+  padding-left: 5px;
 }
 .livecontent {
-  width: 104px;
+  width: 109px;
   height: 110px;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 14px;
@@ -2284,15 +2351,41 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
+  padding-bottom: 3px;
 }
 .livecontent li {
   cursor: pointer;
+  font-size: 14px;
 }
 .livecontent li a {
   text-decoration: none;
   color: #fff;
 }
+.livecontent li a:hover {
+  color: #00ccff;
+}
 .livecontent li:hover {
   color: #00ccff;
+}
+/* 直播二维码样式 */
+#qrcode {
+  width: 110px;
+  height: 110px;
+  background-color: #fff;
+  border-radius: 14px;
+  z-index: 99999;
+  position: absolute;
+  top: 47px;
+  left: 135px;
+  display: inline-block;
+  box-sizing: border-box;
+}
+#qrcode img {
+  width: 100px;
+  /* 设置白色背景色 */
+  background-color: #fff;
+  /* 利用padding的特性，挤出白边 */
+  padding: 6px;
+  border-radius: 14px;
 }
 </style>

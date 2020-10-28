@@ -18,6 +18,7 @@
     "echarts": "^4.9.0",
     "element-resize-detector": "^1.2.1",
     "element-ui": "^2.13.2",
+    "qrcodejs2": "0.0.2",
     "view-design": "^4.3.2",
     "vue": "^2.6.11",
     "vue-contextmenu": "^1.5.10",

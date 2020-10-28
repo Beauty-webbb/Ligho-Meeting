@@ -117,8 +117,7 @@
           </div>
         </div>
       </div>
-      <!-- <el-divider style="color:red;"><div style="width:50px;height:50px;border:1px solid red;transform:rotate(45deg);border-left-color:transparent;border-top-color:transparent;"></div></el-divider> -->
-
+      
       <div class="anpai" style="width:100%;" v-if="!upcoming.length">
         <div class="top" style="margin-bottom:11px;">我的安排</div>
         <div class="null_data">
@@ -198,6 +197,8 @@ import people from '../components/participants'
 export default {
   data() {
     return {
+      showaddress: false,
+      oneself: '',
       id: '', // 会议列表第一项的id值
       show: true,
       centerDialogVisible: false,
@@ -259,7 +260,6 @@ export default {
     ...mapState(['userinfo', 'token', 'videoStatus', 'audioStatus']),
   },
   methods: {
-
     handleCommand(type) {
       if (type == 'logout') {
         this.logout()

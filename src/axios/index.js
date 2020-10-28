@@ -9,6 +9,12 @@ import {
 
 // axios 默认配置  更多配置查看Axios中文文档
 axios.defaults.timeout = 5000; // 超时默认值
+if (axios.defaults.timeout > 5000) {
+  Message({
+    message: '请求超时，请重试',
+    type: 'error'
+  })
+}
 if (process.env.NODE_ENV === 'development') {} else {
   axios.defaults.baseURL = APIUrl.baseURL; // 默认baseURL
 }
