@@ -70,6 +70,7 @@ function createWindow() {
         win.webContents.send('leave', '正在退出会议');
         setTimeout(() => {
           win = null;
+          childview = null
           app.exit();
         }, 3000)
       }
@@ -140,24 +141,23 @@ function protocalHandler() {
 
 }
 
-
-//打开新的窗口
-ipcMain.on('openViewVideo', function () {
-  createNewWindow()
-});
-
 const path = require('path')
 const winURL = process.env.NODE_ENV === 'development' ?
   `http://localhost:8080` :
   `file://${__dirname}/index.html`
+let childview
+
 // 打开子窗口(参会者列表)
 ipcMain.on('opennew', function (data) {
   console.log(data)
   // window.open('./components/participants.vue')
-  let childview
   childview = new BrowserWindow({
     width: 405,
     height: 970,
+    // minWidth: 385,
+    // minHeight: 750,
+    // maxWidth:450,
+    // maxHeight:970,
     // resizable: false, // 禁止窗口放大缩小
     webPreferences: {
       webSecurity: false,
@@ -172,7 +172,26 @@ ipcMain.on('opennew', function (data) {
   childview.on('closed', () => {
     childview = null
   })
+})
+
+// ipcMain.on('sendreplay', (event, data) => {
+//   // console.log(data);
+//   // console.log(event);
+//   childview.on('closed', () => {
+//     console.log(123);
+//     childview = null
+//   })
+//   //主进程给渲染进程广播数据
+//   // event.sender.send('replay', 'ok  haha');
+// })
+
+
+//打开新的窗口
+ipcMain.on('openViewVideo', function () {
+  createNewWindow()
 });
+
+
 
 //新建视频窗口
 let newVideowin

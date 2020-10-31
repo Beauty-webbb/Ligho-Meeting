@@ -117,7 +117,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="anpai" style="width:100%;" v-if="!upcoming.length">
         <div class="top" style="margin-bottom:11px;">我的安排</div>
         <div class="null_data">
@@ -294,7 +294,7 @@ export default {
 
     // 保存会议id历史记录数组
     saveLocal(e) {
-      console.log(e.value)
+      // console.log(e.value)
       if (e.value) {
         // 存储正确会议到历史记录
         this.historyList.unshift({ value: e.value })
@@ -310,8 +310,9 @@ export default {
         localStorage.setItem('historyList', JSON.stringify(this.historyList))
       }
     },
+
     handleSelect(item) {
-      console.log(this.meetingId)
+      // console.log(this.meetingId)
     },
     // 隐藏加入会议
     hideJoinDialog() {
@@ -907,10 +908,13 @@ export default {
           width: 590px !important;
           height: 500px !important;
         }
-        &:nth-child(2) {
+        &:first-child {
+          height: 402px !important;
+        }
+        &:last-child {
+          width: 590px !important;
+          height: 500px !important;
           @media screen and (min-width: 1730px) {
-            width: 590px !important;
-            height: 500px !important;
           }
         }
       }

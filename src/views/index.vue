@@ -15,9 +15,8 @@
       <el-form :label-position="labelPosition" label-width="80px" style="text-align: center;">
         <el-form-item label class="index-el-form-item">
           <!-- <el-input class="index-input" placeholder="会议ID" v-model="meetingId"></el-input> -->
-          <el-autocomplete v-model="meetingId" style="width:90%;" class="inline-input"
-            @blur.stop="saveLocal($event.target)" :fetch-suggestions="querySearch" placeholder="会议ID"
-            @select="handleSelect">
+          <el-autocomplete v-model="meetingId" style="width:90%;" class="inline-input" @blur.stop="saveLocal($event.target)"
+            :fetch-suggestions="querySearch" placeholder="会议ID" @select="handleSelect">
           </el-autocomplete>
         </el-form-item>
         <el-form-item label class="index-el-form-item">
@@ -32,9 +31,8 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="hideDialog">取 消</el-button>
-        <el-button type="primary" @click="join()"
-          style="background-color: #00CCFF !important;border-color: #00CCFF !important;">
+        <el-button @click="hideDialog" round>取 消</el-button>
+        <el-button type="primary" @click="join()" style="background-color: #00CCFF !important;border-color: #00CCFF !important;" round>
           确
           定
         </el-button>
@@ -54,14 +52,12 @@
               <span class="again" v-show="!showCount">{{count}}秒后重试</span>
             </template>
           </el-input>
-          <a href="#" style="position:absolute;top:40px;right:42px;text-decoration: none;color:#00ccff;"
-            @click="changeDialog">密码登录</a>
+          <a href="#" style="position:absolute;top:40px;right:42px;text-decoration: none;color:#00ccff;" @click="changeDialog">密码登录</a>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="hideDialog">取 消</el-button>
-        <el-button type="primary" @click="login()"
-          style="background-color: #00CCFF !important;border-color: #00CCFF !important;">
+        <el-button @click="hideDialog" round>取 消</el-button>
+        <el-button type="primary" @click="login()" style="background-color: #00CCFF !important;border-color: #00CCFF !important;" round>
           确
           定
         </el-button>
@@ -82,14 +78,12 @@
           </el-input>
           <a href="#" style="position:absolute;top:40px;right:35px;text-decoration: none;color:#00ccff;"
             @click="centerDialogVisiblelogin=true">验证码登录</a>
-          <a href="#" style="position:absolute;top:40px;left:35px;text-decoration: none;color:#00ccff;"
-            @click="centerDialogRegister=true">免费注册</a>
+          <a href="#" style="position:absolute;top:40px;left:35px;text-decoration: none;color:#00ccff;" @click="centerDialogRegister=true">免费注册</a>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="hideDialog('form2')">取 消</el-button>
-        <el-button type="primary" @click="Passwordlogin()"
-          style="background-color: #00CCFF !important;border-color: #00CCFF !important;">
+        <el-button @click="hideDialog('form2')" round>取 消</el-button>
+        <el-button type="primary" @click="Passwordlogin()" style="background-color: #00CCFF !important;border-color: #00CCFF !important;" round>
           确
           定
         </el-button>
@@ -112,9 +106,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="hideDialog">取 消</el-button>
-        <el-button type="primary" @click="IdLogin()"
-          style="background-color: #00CCFF !important;border-color: #00CCFF !important;">
+        <el-button @click="hideDialog" round>取 消</el-button>
+        <el-button type="primary" @click="IdLogin()" style="background-color: #00CCFF !important;border-color: #00CCFF !important;" round>
           确
           定
         </el-button>
@@ -123,31 +116,26 @@
 
     <!-- 注册 -->
     <el-dialog title="注册" :visible.sync="centerDialogRegister" width="30%" top="30vh" center>
-      <el-form :label-position="labelPosition" label-width="80px" style="text-align: center;" :model='form'
-        :rules='rules'>
+      <el-form :label-position="labelPosition" label-width="80px" style="text-align: center;" :model='form' :rules='rules'>
         <el-form-item label class="index-el-form-item" prop='mobile'>
           <el-input class="index-input" placeholder="手机号" v-model="form.mobile"></el-input>
         </el-form-item>
 
         <el-form-item label class="index-el-form-item" style="position:relative;" prop='password'>
-          <el-input style="position:relative;" class="index-input" placeholder="密码" v-model="form.password"
-            type="password">
+          <el-input style="position:relative;" class="index-input" placeholder="密码" v-model="form.password" type="password">
           </el-input>
         </el-form-item>
         <el-form-item label class="index-el-form-item" style="position:relative;" prop='code'>
-          <el-input style="position:relative;" class="index-input" placeholder="验证码" v-model="form.code"
-            type="password">
+          <el-input style="position:relative;" class="index-input" placeholder="验证码" v-model="form.code" type="password">
           </el-input>
           <span class="send_sms" v-show="showCount" @click="register_sms">发送验证码</span>
           <span class="again_code" v-show="!showCount">{{count}}秒后重试</span>
-          <a href="#" style="position:absolute;top:40px;right:42px;text-decoration: none;color:#00ccff;"
-            @click="toLogin">已有账号?去登录</a>
+          <a href="#" style="position:absolute;top:40px;right:42px;text-decoration: none;color:#00ccff;" @click="toLogin">已有账号?去登录</a>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="hideDialog('form')">取 消</el-button>
-        <el-button type="primary" @click="Register"
-          style="background-color: #00CCFF !important;border-color: #00CCFF !important;">
+        <el-button @click="hideDialog('form')" round>取 消</el-button>
+        <el-button type="primary" @click="Register" style="background-color: #00CCFF !important;border-color: #00CCFF !important;" round>
           注册
         </el-button>
       </span>
@@ -473,7 +461,7 @@ export default {
       this.joindata.video = this.radio_video ? 0 : 1
       this.joindata.scene = this.radio_audio ? 0 : 1
       this.joindata.type = 2
-      this.joindata.facility='web'
+      this.joindata.facility = 'web'
 
       this.$router.push({
         name: 'webrtc',
@@ -622,8 +610,8 @@ export default {
         timestamp: this.getTime(),
       })
         .then((res) => {
-          console.log('密码登录', res)
-          console.log(this.password)
+          // console.log('密码登录', res)
+          // console.log(this.password)
           if (res.status == 200) {
             // 添加密码
             res.data.password = this.password
@@ -685,7 +673,7 @@ export default {
         type: 2,
       })
         .then((res) => {
-          console.log('type2', res)
+          // console.log('type2', res)
           if (res.status == 200) {
             this.$store.commit('setuserinfo', res.data)
             window.localStorage.setItem('userinfo', JSON.stringify(res.data))
@@ -697,9 +685,8 @@ export default {
                 name: 'menu',
               })
             }, 500)
-          }else {
+          } else {
             this.$message.error(res.message)
-
           }
         })
         .catch((err) => {

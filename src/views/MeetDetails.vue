@@ -152,7 +152,7 @@
           </el-row>
 
           <el-row :gutter="20" class="invitation">
-            <el-col :span="3">
+            <el-col :span="3" style="padding-left:23px;">
               <div class="invitation-left">
                 会议ID：
               </div>
@@ -388,7 +388,9 @@ export default {
 .details {
   text-align: center;
   overflow: hidden;
-
+  .invitation {
+    margin-bottom: 15px !important;
+  }
   .invitation-left {
     font-weight: 400;
     font-size: 16px;

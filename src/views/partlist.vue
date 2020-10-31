@@ -25,21 +25,22 @@
           <span>{{item.username}}</span>
         </div>
         <el-dropdown-menu>
-          <el-dropdown-item v-if="admin==1||admin==3" @click="moveadmin(item.userId)" :command="{type:'move',id:item.userId,message:item.admin}">
+          <el-dropdown-item v-if="admin==1||admin==3||admin==2" @click="moveadmin(item.userId)"
+            :command="{type:'move',id:item.userId,message:item.admin}">
             {{admin==3?'收回主持人权限':'移交主持人权限'}}
           </el-dropdown-item>
-          <el-dropdown-item v-if="admin==1||admin==3" @click="handtranscribe(item.userId)"
+          <el-dropdown-item v-if="admin==1||admin==2" @click="handtranscribe(item.userId)"
             :command="{type:'transcribe',id:item.userId,message:item.transcribe}">
             {{item.transcribe?'收回录制权限':'赋予录制权限'}}
           </el-dropdown-item>
-          <el-dropdown-item v-if="admin==1||admin==3" @click="handstreaming(item.userId)"
+          <el-dropdown-item v-if="admin==1||admin==2" @click="handstreaming(item.userId)"
             :command="{type:'streaming',id:item.userId,message:item.streaming}">
             {{item.streaming?'收回直播权限':'赋予直播权限'}}
           </el-dropdown-item>
-          <el-dropdown-item v-if="admin==1||admin==3" @click="allScene(item.userId)" :command="{type:'allscene',id:item.userId,message:allscene?1:0}">
+          <!-- <el-dropdown-item v-if="admin==1||admin==2" @click="allScene(item.userId)" :command="{type:'allscene',id:item.userId,message:allscene?1:0}">
             {{allscene?'解除全体禁言':'全体禁言'}}
-          </el-dropdown-item>
-          <el-dropdown-item v-if="admin==1||admin==3" @click="moveOutMeet(item.userId)"
+          </el-dropdown-item> -->
+          <el-dropdown-item v-if="admin==1||admin==2" @click="moveOutMeet(item.userId)"
             :command="{type:'remove',id:item.userId,message:item.username}">
             移出会议
           </el-dropdown-item>
@@ -215,7 +216,7 @@ export default {
         console.log('直播', res)
         if (res.status == 200) {
           this.$message.success(res.message)
-          this.$store.commit('setisgetplist', 1)
+          // this.$store.commit('setisgetplist', 1)
           // this.getplist()
         } else {
           this.$message.warning(res.message)
@@ -237,7 +238,7 @@ export default {
         console.log('赋予录制', res)
         this.$message.success(res.message)
         if (res.status == 200) {
-          this.$store.commit('setisgetplist', 1)
+          // this.$store.commit('setisgetplist', 1)
           // this.getplist()
         } else {
           this.$message.warning(res.message)
@@ -270,7 +271,7 @@ export default {
               console.log('移交权限', res)
               if (res.status == 200) {
                 // this.moveadminstate = false
-                this.$store.commit('setisgetplist', 1)
+                // this.$store.commit('setisgetplist', 1)
               } else {
                 this.$message.error(res.message)
               }
@@ -301,7 +302,7 @@ export default {
                     if (res.status == 200) {
                       // this.moveadminstate = true
                       // this.$message.success(`您已收回主持人权限`)
-                      this.$store.commit('setisgetplist', 1)
+                      // this.$store.commit('setisgetplist', 1)
                     } else {
                       this.$message.error(res.message)
                     }

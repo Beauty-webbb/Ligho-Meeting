@@ -3,6 +3,9 @@
     <el-drawer title="我是标题" :visible.sync="drawer" direction="ltr" size="30%" :wrapperClosable="false" :with-header="false">
       <div class="title">
         <h3>参会者</h3>
+        <!-- 客户端启用 -->
+        <!-- <i title="弹出参会者列表" class="iconfont icon-danchuchuangkou"
+          style="cursor:pointer;color:#00ccff;font-size:25px;position:absolute;top:1.4%;right:5%;"></i> -->
       </div>
       <div class="cont">
         <div class="cont-left">
@@ -28,22 +31,23 @@
           </div>
           <!-- v-if="showDropdowm" -->
           <el-dropdown-menu>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="moveadmin(item.userId)" :command="{type:'move',id:item.userId,message:item.admin}">
+            <el-dropdown-item v-if="admin==1||admin==3||admin==2" @click="moveadmin(item.userId)"
+              :command="{type:'move',id:item.userId,message:item.admin}">
               {{admin==3?'收回主持人权限':'移交主持人权限'}}
             </el-dropdown-item>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="handtranscribe(item.userId)"
+            <el-dropdown-item v-if="admin==1||admin==2" @click="handtranscribe(item.userId)"
               :command="{type:'transcribe',id:item.userId,message:item.transcribe}">
               {{item.transcribe?'收回录制权限':'赋予录制权限'}}
             </el-dropdown-item>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="handstreaming(item.userId)"
+            <el-dropdown-item v-if="admin==1||admin==2" @click="handstreaming(item.userId)"
               :command="{type:'streaming',id:item.userId,message:item.streaming}">
               {{item.streaming?'收回直播权限':'赋予直播权限'}}
             </el-dropdown-item>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="allScene(item.userId)"
+            <!-- <el-dropdown-item v-if="admin==1||admin==2" @click="allScene(item.userId)"
               :command="{type:'allscene',id:item.userId,message:allscene?1:0}">
               {{allscene?'解除全体禁言':'全体禁言'}}
-            </el-dropdown-item>
-            <el-dropdown-item v-if="admin==1||admin==3" @click="moveOutMeet(item.userId)"
+            </el-dropdown-item> -->
+            <el-dropdown-item v-if="admin==1||admin==2" @click="moveOutMeet(item.userId)"
               :command="{type:'remove',id:item.userId,message:item.username}">
               移出会议
             </el-dropdown-item>
@@ -125,6 +129,12 @@ export default {
     // },
   },
   methods: {
+    // 客户端弹出参会者列表
+    opennew() {
+      this.$store.commit('setpeoplelist', false)
+      const { ipcRenderer, BrowserWindow } = window.require('electron')
+      ipcRenderer.send('opennew', 'peoplelist')
+    },
     // 显示/隐藏下拉列表
     clickmyself(id) {
       if (id == this.joininfo.userId) {
@@ -138,16 +148,14 @@ export default {
     // 点击子菜单的回调
     handleCommand(data) {
       // console.log(data)
-      if (
-        data.id == this.joininfo.userId &&
-        data.type !== 'allscene' &&
-        data.type !== 'remove'
-      ) {
+      if (data.id == this.joininfo.userId && data.type !== 'allscene') {
         this.$message.warning('不能操作自己')
         return false
       } else if (this.admin == 0) {
         this.$message.warning('您无权限')
         return false
+      } else if (data.id == this.joininfo.userId && data.type !== 'remove') {
+        this.$message.warning('不能操作自己')
       }
 
       // 判断类型，调用对应方法
@@ -221,7 +229,7 @@ export default {
         console.log('直播', res)
         if (res.status == 200) {
           this.$message.success(res.message)
-          this.$store.commit('setisgetplist', 1)
+          // this.$store.commit('setisgetplist', 1)
           // this.getplist()
         } else {
           this.$message.warning(res.message)
@@ -243,7 +251,7 @@ export default {
         console.log('赋予录制', res)
         this.$message.success(res.message)
         if (res.status == 200) {
-          this.$store.commit('setisgetplist', 1)
+          // this.$store.commit('setisgetplist', 1)
           // this.getplist()
         } else {
           this.$message.warning(res.message)
@@ -276,7 +284,7 @@ export default {
               console.log('移交权限', res)
               if (res.status == 200) {
                 // this.moveadminstate = false
-                this.$store.commit('setisgetplist', 1)
+                // this.$store.commit('setisgetplist', 1)
               } else {
                 this.$message.error(res.message)
               }
@@ -307,7 +315,7 @@ export default {
                     if (res.status == 200) {
                       // this.moveadminstate = true
                       // this.$message.success(`您已收回主持人权限`)
-                      this.$store.commit('setisgetplist', 1)
+                      // this.$store.commit('setisgetplist', 1)
                     } else {
                       this.$message.error(res.message)
                     }

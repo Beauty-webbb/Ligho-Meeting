@@ -90,10 +90,13 @@
               <el-input v-model="form.pwd" type="password" placeholder="可不填"></el-input>
             </el-form-item>
             <el-form-item label="选项" prop="beforeHost">
-              <el-checkbox label="允许在主持人入会前加入" v-model="form.beforeHost"></el-checkbox>
-              <br />
-              <el-checkbox label="使用个人会议ID" v-model="form.meetingId"></el-checkbox>
-              <br />
+              <el-checkbox-group v-model="form.options">
+                <el-checkbox label="允许在主持人入会前加入" name="options" v-model="form.beforeHost"></el-checkbox>
+                <br />
+                <el-checkbox label="使用个人会议ID" name="options" v-model="form.meetingId"></el-checkbox>
+                <br />
+              </el-checkbox-group>
+
             </el-form-item>
 
             <!-- 按钮 -->
@@ -245,6 +248,7 @@ export default {
         desc: '',
         pwd: '', // 会议密码
         beforeHost: '', // 主持人入会前加入
+        options: [],
       },
       meetlist: [], // 会议列表
       meetId: '', // 会议id
@@ -358,6 +362,8 @@ export default {
 
     // 安排会议
     creatmeet() {
+      // console.log(this.form.options)
+
       // console.log(this.form.startDate + ' ' + this.form.startTime)
       // console.log(this.form.stopDate + ' ' + this.form.stopTime)
       // console.log(this.form.startDate)
@@ -373,6 +379,17 @@ export default {
         })
         return false
       }
+      if (
+        !this.form.startDate ||
+        !this.form.stopDate ||
+        !this.form.startTime ||
+        !this.form.stopTime ||
+        !this.form.meetTopic ||
+        !this.form.options.length
+      ) {
+        this.$message.warning('请填写完整信息')
+        return false
+      }
       const apiurl = APIUrl.util.createmeet
       post(apiurl, {
         userId: this.userinfo.userId,
@@ -384,8 +401,10 @@ export default {
         startTime: this.form.startDate + ' ' + this.form.startTime,
         stopTime: this.form.stopDate + ' ' + this.form.stopTime,
         timestamp: this.getTime(),
-        oneself: this.form.meetingId ? 1 : 0,
-        tailStatus: this.form.beforeHost ? 1 : 0,
+        oneself: this.form.options.includes('使用个人会议ID') ? 1 : 0,
+        tailStatus: this.form.options.includes('允许在主持人入会前加入')
+          ? 1
+          : 0,
       })
         .then((res) => {
           console.log('安排会议', res)
@@ -701,17 +720,17 @@ export default {
         @media screen and (min-width: 100px) and (max-width: 1319px) {
           width: 585px !important;
           height: 576px !important;
-          &:nth-child(2) {
-            height: 443px !important;
-          }
         }
         @media screen and (min-width: 1320px) {
-          width: 585px !important;
-          height: 576px !important;
           &:nth-child(2) {
             height: 443px !important;
           }
+          width: 585px !important;
+          height: 576px !important;
         }
+        // &:nth-child(2) {
+        //   height: 300px !important;
+        // }
       }
     }
   }

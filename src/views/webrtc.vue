@@ -34,30 +34,36 @@
       <!-- 共享视图结束，演讲者视图开始 -->
       <div v-else-if="pspeak" style="width:100%;height:100%" class="father">
         <video oncontextmenu="return true;" :style="{ width: '100%',height:'100%' }" autoplay playsinline id="share"></video>
-        <i title="关闭全屏视图" class="iconfont icon-close" v-if="fullScreenState" @click="closeFullScreen"
-          style="position:absolute; top:0;right:11%;color:#00ccff;cursor:pointer;font-size:30px;"></i>
+        <!-- 关闭焦点视图按钮 -->
+        <!-- <button v-if="fullScreenState" @click="closeFullScreen"
+          style="padding:11px 16px;border-radius:29px;position:fixed; top:11px;right:7%;color:#fff;font-size:14px;background:rgba(0, 0, 0, 0.5);cursor:pointer;border:0;outline:none">关闭焦点视图</button> -->
         <div class="sharename" v-if="!videoStatus" :style="{ width: '79%',height:'100%',background:'#000',color:'#fff' }">{{joininfo.username}}</div>
         <div>
-          <div class="pspeak-list" id="pspeak-list-remove" :style="{right:pspeakRight+'px',top:pspeakTop+'px'}">
+          <!-- 如果参会者只有自己，那么隐藏小视图 -->
+          <div class="pspeak-list" id="pspeak-list-remove"
+            :style="{right:pspeakRight+'px',top:pspeakTop+'px',display:users.length == 1 ? 'none' : 'block'}">
             <div class="pspeak-list-title" @click="slide">
               <i :class="slideToggle?'el-icon-arrow-up':'el-icon-arrow-down'" style='color:#fff;'></i>
             </div>
             <div class="pspeak-list-cont">
               <!-- display:borderid == item.userId ? 'none' : 'block' -->
-              <div class="mainvideo" v-for="(item, key) in users" :key="key" :id="'main' + item.userId" :style="{width:'100%',}">
+              <div class="mainvideo" v-for="(item, key) in users" :key="key" :id="'main' + item.userId"
+                :style="{width:'100%',display:borderid == item.userId ? 'none' : 'block'}">
                 <span style="display: none;width:100%;height:112.5px;text-align:center;font-size:12px;line-height:100px;background:black;color:#fff"
                   :id="'d' + item.userId">{{ item.displayName }}</span>
                 <div style="width:100%;height:112.5px;position:absolute;color:#fff;" :id="'name' + item.userId">
                   <span :style="{
-                  bottom: '3px',
-                  left:'62px',
+                  top: '78%',
+                  left:'50%',
                   position:'absolute',
-                  fontSize: '22px',
-                  backgroundColor:'rgba(0,0,0,0.5)'
+                  fontSize: '18px',
+                  backgroundColor:'rgba(0,0,0,0.5)',
+                  transform:'translateX(-50%)'
                 }">{{ item.displayName }}</span>
                 </div>
-                <video @dblclick="speakFullScreen(item.userId)" oncontextmenu="return true;"
-                  :style="{ width: '200px', height: '112.5px' ,background:'black'}" autoplay playsinline :id="item.userId"></video>
+                <!-- @dblclick="speakFullScreen(item.userId)" -->
+                <video oncontextmenu="return true;" :style="{ width: '200px', height: '112.5px' ,background:'black'}" autoplay playsinline
+                  :id="item.userId"></video>
               </div>
 
               <!-- 上下翻页按钮 -->
@@ -71,19 +77,21 @@
 
       </div>
       <!-- 演讲者视图结束，画廊视图开始 1851.6px-->
-      <div v-else :style="{maxWidth: '1851.6px',display:'flex'}">
-        <div class="user-vedio" v-for="(item, key) in newusers" :key="key" :id="'main' + item.userId"
-          :style="{ width: uservideow + 'px', height: uservideoh + 'px' }" @contextmenu="showMenu">
-          <span class="user-vedio-title" style="display: none" :id="'d' + item.userId">{{ item.displayName }}</span>
-          <div class="user-video-name" :style="{ width: uservideow + 'px', height: uservideoh + 'px' }" :id="'name' + item.userId">
-            <div class="user-video-box" :style="{bottom: '-' + (uservideoh - 30) + 'px',}">
-              <span :style="{ fontSize: fontsize + 'px',}">{{ item.displayName }}</span>
-            </div>
-          </div>
+      <!-- <div  :style="{display:'flex'}">
+       
+      </div> -->
 
-          <video oncontextmenu="return true;" :style="{ width: '100%', height: '100%' }" autoplay playsinline :id="item.userId"
-            @dblclick="FullScreenVideo(item.userId)"></video>
+      <div v-else class="user-vedio" v-for="(item, key) in newusers" :key="key" :id="'main' + item.userId"
+        :style="{ width: uservideow + 'px', height: uservideoh + 'px'}" @contextmenu="showMenu">
+        <span class="user-vedio-title" style="display: none" :id="'d' + item.userId">{{ item.displayName }}</span>
+        <div class="user-video-name" :style="{ width: uservideow +'px', height: uservideoh +'px',bottom: '-' + (uservideoh - 30) + 'px' }" :id="'name' + item.userId">
+          <!-- <div class="user-video-box" :style="{bottom: '-' + (uservideoh - 30) + 'px',}">
+            </div> -->
+          <span
+            :style="{ fontSize: fontsize + 'px',position:'absolute',bottom:'0',transform:'translateX(-50%)',left:'50%'}">{{ item.displayName }}</span>
         </div>
+        <video oncontextmenu="return true;" :style="{ width: '100%', height: '100%' }" autoplay playsinline :id="item.userId"
+          @dblclick="FullScreenVideo(item.userId)"></video>
       </div>
 
       <!-- 直播地址 -->
@@ -104,8 +112,8 @@
       </div>
 
       <!-- 左右翻页按钮 -->
-      <i v-if="!pspeak" @click="prepage" class="el-icon-arrow-left"></i>
-      <i v-if="!pspeak" @click="nextpage" class="el-icon-arrow-right"></i>
+      <i v-if="!pspeak&&pagenum!=1" @click="prepage" class="el-icon-arrow-left"></i>
+      <i v-if="!pspeak&&users.length!==newusers.length" @click="nextpage" class="el-icon-arrow-right"></i>
 
     </div>
     <vue-context-menu :contextMenuData="contextMenuData" @hideview="hideview(1)" @openview="openViewVideo">
@@ -272,12 +280,9 @@ export default {
     this.init()
     this.callBackInit()
     this.userinfo = JSON.parse(localStorage.getItem('username'))
-    this.newusers = this.users.slice(0, 2)
-
-    // console.log('pagenum', this.pagenum)
-    if (this.pagenum == 1) {
-      document.querySelector('.el-icon-arrow-left').style.display = 'none'
-    }
+    this.newusers = this.users.slice(0, 3)
+    // console.log('length', this.newusers.length)
+    // console.log(this.newusers)
   },
 
   watch: {
@@ -293,11 +298,13 @@ export default {
         this.$refs.consolebottom.bottoms[4].img = require('../assets/webrtcs/share.png')
         this.$refs.consolebottom.bottoms[4].text = '共享'
       } else {
-        this.$refs.consolebottom.bottoms[4].text = '停止共享'
+        this.$refs.consolebottom.bottoms[4].text = '共享中'
         this.$refs.consolebottom.bottoms[4].img = require('../assets/webrtcs/share.png')
       }
     },
     screenWidth(newv, oldv) {
+      // console.log('计算123')
+      console.log(newv)
       this.calculation_w_h(newv)
     },
     admin(newv, oldv) {
@@ -331,12 +338,35 @@ export default {
         this.getplist()
       }
     },
-    fullScreenState(newv, oldv) {
-      console.log(newv)
-      if (!newv) {
-        this.callBackInit()
-      }
+    // 监听newusers数组的长度变化,如果当前页的没有用户，那么自动返回上一页
+    'newusers.length': {
+      handler(newv, oldv) {
+        console.log('newlength===', newv)
+        if (!newv) {
+          this.prepage()
+        }
+      },
     },
+
+    // fullScreenState(newv, oldv) {
+    //   console.log(newv)
+    //   if (newv == 0) {
+    //     this.$store.commit('setfullScreenState', 0)
+    //     this.sdk.on('onAudioLevel', (data) => {
+    //       var userId = ''
+    //       var level = 0
+    //       data.forEach((item) => {
+    //         if (item.level > level) {
+    //           level = item.level
+    //           userId = item.userId
+    //         }
+    //       })
+    //       if (level !== 0) {
+    //         this.setborder(userId)
+    //       }
+    //     })
+    //   }
+    // },
   },
   destroyed() {
     this.socket.close()
@@ -347,21 +377,25 @@ export default {
   },
   mounted() {
     const that = this
+
     const { ipcRenderer } = window.require('electron')
     window.onresize = () => {
+      console.log('resize')
       return (() => {
         window.screenWidth = document.body.clientWidth
-        if (window.screenWidth >= 850) {
-          that.screenWidth = window.screenWidth
-        }
+        // if (window.screenWidth >= 850) {
+        // }
+        that.screenWidth = window.screenWidth
       })()
     }
+
     ipcRenderer.on('leave', (event, message) => {
       this.leave()
     })
+    // console.log('pagenum', this.pagenum)
 
-    if (this.speak) {
-      this.ResizeDetectorMaker()
+    if (that.speak) {
+      that.ResizeDetectorMaker()
     }
   },
   methods: {
@@ -376,10 +410,11 @@ export default {
       this.showQrcode = false
     },
 
+    // 客户端打开直播地址
     openAddress() {
-      // 客户端打开直播地址
       window.open(this.liveUrl)
     },
+
     // 生成直播间二维码
     creatQrCode(message, index) {
       // $('.liveqrcode').addClass('libox').siblings('li').removeClass('libox')
@@ -435,64 +470,20 @@ export default {
     prepage() {
       this.pagenum--
       console.log(this.pagenum)
-      if (this.pagenum == 1) {
-        document.querySelector('.el-icon-arrow-left').style.display = 'none'
-      }
-      this.newusers = this.users.slice((this.pagenum - 1) * 1, this.pagenum * 1)
-      var sum = 0 // 计算总人数
-      sum += this.newusers.length * this.pagenum
-      // 累计显示人数小于数组长度则显示右按钮
-      if (sum < this.users.length) {
+      this.newusers = this.users.slice((this.pagenum - 1) * 3, this.pagenum * 3)
+
+      if (this.users.length <= this.pagenum * 3) {
+        document.querySelector('.el-icon-arrow-right').style.display = 'none'
+      } else {
         document.querySelector('.el-icon-arrow-right').style.display = 'block'
       }
-      var userId = this.users[0].userId
-      if (this.borderid) {
-        userId = this.borderid
-      }
-      if (userId == this.joininfo.userId) {
-        this.closeView()
-        setTimeout(() => {
-          const dom = document.getElementById(userId)
-          this.openview(dom)
-        }, 300)
-      } else {
-        setTimeout(() => {
-          // 订阅远端相机流
-          this.sdk.configRemoteCameraTrack(userId, true, true)
-          // 订阅远端音频流
-          this.sdk.configRemoteAudio(userId, true)
-          this.sdk
-            .subscribe(userId)
-            .then((res) => {
-              var dom = document.getElementById('share')
-              this.sdk.setDisplayRemoteVideo(userId, dom, 1)
-              this.closecmare.forEach((item, key) => {
-                if (item == userId) {
-                  this.muteCamera(userId, 0)
-                  if (this.HideShowView) {
-                    this.hidecamera(userId)
-                    this.sethideshowview(this.closecmarenum)
-                  }
-                }
-              })
-            })
-            .catch((err) => {
-              console.log('subscribe失败', err)
-            })
-        }, 500)
-        this.closeView()
-        setTimeout(() => {
-          const dom = document.getElementById(this.joininfo.userId)
-          this.openview(dom)
-        }, 300)
-      }
+      this.closeopensub(this.newusers)
 
-      this.newusers.forEach((item, index) => {
-        if (item.userId != userId && item.userId != this.joininfo.userId) {
-          // this.unSubscribe(item.userId)
-          setTimeout(() => {
-            this.subscribe(item)
-          }, 500)
+      this.closecmare.forEach((item) => {
+        if (this.HideShowView) {
+          this.hidecamera(item)
+        } else {
+          this.muteCamera(item, 0)
         }
       })
     },
@@ -500,68 +491,20 @@ export default {
     // 下一页
     nextpage() {
       this.pagenum++
-      console.log(this.pagenum)
-      if (this.pagenum !== 1) {
-        document.querySelector('.el-icon-arrow-left').style.display = 'block'
-      }
-      // 每页显示1个人
-      this.newusers = this.users.slice((this.pagenum - 1) * 1, this.pagenum * 1)
-      var sum = 0
-      sum += this.newusers.length * this.pagenum
-      // console.log(sum)
-      // 累计显示人数等于数组长度则隐藏右按钮
-      if (sum == this.users.length) {
+      // 每页显示2个人
+      this.newusers = this.users.slice((this.pagenum - 1) * 3, this.pagenum * 3)
+      if (this.users.length <= this.pagenum * 3) {
         document.querySelector('.el-icon-arrow-right').style.display = 'none'
-      }
-      var userId = this.users[0].userId
-      if (this.borderid) {
-        userId = this.borderid
-      }
-      if (userId == this.joininfo.userId) {
-        // this.closeView()
-        // setTimeout(() => {
-        //   const dom = document.getElementById('share')
-        //   this.openview(dom)
-        // }, 300)
       } else {
-        // this.unSubscribe(userId)
-        setTimeout(() => {
-          // 订阅远端相机流
-          this.sdk.configRemoteCameraTrack(userId, true, true)
-          // 订阅远端音频流
-          this.sdk.configRemoteAudio(userId, true)
-          this.sdk
-            .subscribe(userId)
-            .then((res) => {
-              var dom = document.getElementById(userId)
-              this.sdk.setDisplayRemoteVideo(userId, dom, 1)
-              this.closecmare.forEach((item, key) => {
-                if (item == userId) {
-                  this.muteCamera(userId, 0)
-                  if (this.HideShowView) {
-                    this.hidecamera(userId)
-                    this.sethideshowview(this.closecmarenum)
-                  }
-                }
-              })
-            })
-            .catch((err) => {
-              console.log('subscribe失败', err)
-            })
-        }, 500)
-        this.closeView()
-        setTimeout(() => {
-          const dom = document.getElementById(this.joininfo.userId)
-          this.openview(dom)
-        }, 300)
+        document.querySelector('.el-icon-arrow-right').style.display = 'block'
       }
+      this.closeopensub(this.newusers)
 
-      this.newusers.forEach((item, index) => {
-        if (item.userId != userId && item.userId != this.joininfo.userId) {
-          // this.unSubscribe(item.userId)
-          setTimeout(() => {
-            this.subscribe(item)
-          }, 500)
+      this.closecmare.forEach((item) => {
+        if (this.HideShowView) {
+          this.hidecamera(item)
+        } else {
+          this.muteCamera(item, 0)
         }
       })
     },
@@ -663,16 +606,23 @@ export default {
     speakFullScreen(id) {
       if (this.pspeak) {
         this.$store.commit('setfullScreenState', 1)
+        // 点击自己
         if (id == this.joininfo.userId) {
           this.closeView()
           setTimeout(() => {
             const dom = document.getElementById('share')
             this.openview(dom)
           }, 300)
-
+          // 点击自己时，隐藏自己的小视图
+          document.getElementById(`main${this.joininfo.userId}`).style.display =
+            'none'
           setTimeout(() => {
             this.users.forEach((item) => {
               if (item.userId != id && item.userId != this.joininfo.userId) {
+                // 点击自己时，显示别人的小视图
+                document.getElementById(`main${item.userId}`).style.display =
+                  'block'
+                document.getElementById(`main${id}`).style.display = 'none'
                 this.sdk.configRemoteCameraTrack(item.userId, true, true)
                 // 订阅远端音频流
                 this.sdk.configRemoteAudio(item.userId, true)
@@ -689,30 +639,56 @@ export default {
             })
             // 订阅远端相机流
           }, 300)
+          // 点击别人
         } else {
+          // 点击别人时，显示自己的小视图
+          document.getElementById(`main${this.joininfo.userId}`).style.display =
+            'block'
           setTimeout(() => {
-            // 订阅远端相机流
-            this.sdk.configRemoteCameraTrack(id, true, true)
-            // 订阅远端音频流
-            this.sdk.configRemoteAudio(id, true)
-            this.sdk
-              .subscribe(id + '')
-              .then((res) => {
-                var dom = document.getElementById('share')
-                this.sdk.setDisplayRemoteVideo(id, dom, 1)
-                this.closecmare.forEach((item, key) => {
-                  if (item == id) {
-                    this.muteCamera(id, 0)
-                    if (this.HideShowView) {
-                      this.hidecamera(id)
-                      this.sethideshowview(this.closecmarenum)
-                    }
-                  }
-                })
-              })
-              .catch((err) => {
-                console.log('subscribe失败', err)
-              })
+            this.users.forEach((item) => {
+              if (item.userId == id) {
+                // this.closeopensub(this.users)
+                this.sdk.configRemoteCameraTrack(id, true, true)
+                // 订阅远端音频流
+                this.sdk.configRemoteAudio(id, true)
+                this.sdk
+                  .subscribe(id + '')
+                  .then((res) => {
+                    var dom = document.getElementById('share')
+                    this.sdk.setDisplayRemoteVideo(id, dom, 1)
+                    this.closecmare.forEach((item, key) => {
+                      if (item == id) {
+                        this.muteCamera(id, 0)
+                        if (this.HideShowView) {
+                          this.hidecamera(id)
+                          this.sethideshowview(this.closecmarenum)
+                        }
+                      }
+                    })
+                  })
+                  .catch((err) => {
+                    console.log('subscribe失败', err)
+                  })
+                // 点击他人时，隐藏他的小视图
+                document.getElementById('main' + id).style.display = 'none'
+              } else {
+                // 显示除他之外的人
+                document.getElementById('main' + item.userId).style.display =
+                  'block'
+                // this.subscribe(item)
+                this.sdk.configRemoteCameraTrack(item.userId, true, true)
+                // 订阅远端音频流
+                this.sdk.configRemoteAudio(item.userId, true)
+                this.sdk
+                  .subscribe(item.userId)
+                  .then((res) => {
+                    console.log(res)
+                  })
+                  .catch((err) => {
+                    console.log(err)
+                  })
+              }
+            })
           }, 500)
           this.closeView()
           setTimeout(() => {
@@ -723,8 +699,9 @@ export default {
       }
     },
 
-    // 画廊视图下双击全屏全屏视图
+    // 画廊视图下双击全屏视图
     FullScreenVideo(id) {
+      console.log(id)
       if (this.FullScreenVideostatus) {
         this.FullScreenVideostatus = 0
         const namedom = document.getElementById('name' + id)
@@ -732,6 +709,7 @@ export default {
         maindom.style.position = 'relative'
         maindom.style.zIndex = '0'
         namedom.children[0].style.position = 'relative'
+        namedom.children[0].style.left = '0' // ++
         namedom.children[0].style.bottom = '-' + (this.uservideoh - 30) + 'px'
         this.calculation_w_h(document.body.clientWidth, this.closecmarenum) //动态逻辑
         maindom.style.width = this.uservideow + 'px'
@@ -744,6 +722,8 @@ export default {
           const maindom = document.getElementById('main' + id)
           const namedom = document.getElementById('name' + id)
           maindom.style.position = 'fixed'
+          maindom.style.top = '0' // ++
+          maindom.style.left = '0' // ++
           maindom.style.width = '100%'
           maindom.style.height = '100%'
           maindom.style.zIndex = '999'
@@ -751,6 +731,7 @@ export default {
           namedom.style.width = '100%'
           namedom.style.height = '100%'
           namedom.children[0].style.bottom = '20px'
+          namedom.children[0].style.left = '44%' // ++
           namedom.children[0].style.position = 'absolute'
           this.FullScreenVideostatus = 1
         }
@@ -768,7 +749,8 @@ export default {
         return
       }
       // 演讲者视图
-      if (this.pspeak && this.users.length == 1) {
+      if (this.pspeak) {
+        console.log('演讲者视图')
         this.closeView()
         setTimeout(() => {
           const dom = document.getElementById('share')
@@ -791,12 +773,14 @@ export default {
         userId = this.borderid
       }
       if (userId == this.joininfo.userId) {
+        // console.log('需要隐藏自己', userId)
         this.closeView()
         setTimeout(() => {
           const dom = document.getElementById('share')
           this.openview(dom)
         }, 300)
       } else {
+        // console.log('需要隐藏别人', userId)
         // this.unSubscribe(userId)
         setTimeout(() => {
           // 订阅远端相机流
@@ -827,7 +811,10 @@ export default {
           const dom = document.getElementById(this.joininfo.userId)
           this.openview(dom)
         }, 300)
+        // document.getElementById('main' + userId).style.display = 'none'
       }
+      // console.log('隐藏', userId)
+      // document.getElementById('main' + userId).style.display = 'none'
 
       this.users.forEach((item, index) => {
         if (item.userId != userId && item.userId != this.joininfo.userId) {
@@ -918,18 +905,19 @@ export default {
 
     //根据数组长度计算每一个视频窗口的宽高
     calculation_w_h(bodywidth, num = 0) {
+      console.log('计算宽高')
       if (this.FullScreenVideostatus) {
         return
       }
-      if (this.users.length - num >= 2 && this.users.length - num <= 4) {
+      if (this.newusers.length - num >= 2 && this.newusers.length - num <= 4) {
         var numbers = 2
-      } else if (this.users.length - num > 4) {
+      } else if (this.newusers.length - num > 4) {
         this.fontsize = 22
         var numbers = 4
       } else {
         var numbers = 1
       }
-      this.uservideow = (bodywidth * 0.98) / numbers - 15
+      this.uservideow = (bodywidth * 0.85) / numbers - 15
       this.uservideoh = (this.uservideow * 9) / 16 + 1
     },
 
@@ -994,12 +982,35 @@ export default {
         // console.log('加入', publisher)
         // this.setplist(publisher)
       })
+
       this.sdk.on('onLeave', (publisher) => {
         console.log(publisher.displayName + '离开了会议')
+
+        // start :+++翻页情况下动态响应视图
+        this.newusers.forEach((item, index) => {
+          if (item.userId == publisher.userId) {
+            this.newusers.splice(index, 1)
+          }
+          if (item.userId == 's' + publisher.userId) {
+            this.newusers.splice(index, 1)
+          }
+        })
+        this.newusers.forEach((item, index) => {
+          if (item.userId !== this.joininfo.userId) {
+            console.log(item, '订阅')
+            this.subscribe(item)
+          }
+        }) // end :+++翻页情况下动态响应视图
         this.removeuserview(publisher)
       })
+
       // 流发布事件，将该用户新增到推流列表，若该用户已存在推流列表，则进行状态更新
       this.sdk.on('onPublisher', (publisher) => {
+        // console.log('this.newusers.length', this.newusers.length)
+        // 如果翻页数组长度不满2，那么就将用户添加进去
+        if (this.pagenum == 1 && this.newusers.length < 3) {
+          this.newusers.push(publisher)
+        } // ++
         var videopush = 1
         this.users.forEach((item, index) => {
           if (item.userId == publisher.userId) {
@@ -1010,8 +1021,10 @@ export default {
         if (videopush) {
           this.users.push(publisher)
         }
+
         this.subscribe(publisher)
       })
+
       // 结束流发布事件，推流列表删除该用户，移除用户视图，初始化订阅状态
       this.sdk.on('onUnPublisher', (publisher) => {
         // this.removeuserview(publisher);
@@ -1030,22 +1043,32 @@ export default {
         this.calculation_w_h(document.body.clientWidth) //动态逻辑
       })
 
-      if (!this.fullScreenState) {
-        //音频回调监听
-        this.sdk.on('onAudioLevel', (data) => {
-          var userId = ''
-          var level = 0
-          data.forEach((item) => {
-            if (item.level > level) {
-              level = item.level
-              userId = item.userId
-            }
-          })
-          if (level !== 0) {
-            this.setborder(userId)
+      // if (!this.fullScreenState) {
+
+      // }
+      //音频回调监听
+      this.sdk.on('onAudioLevel', (data) => {
+        // document.getElementById('main' + this.joininfo.userId).style.border = '1px solid #00ccff';
+        // return;
+        // console.log(data)
+        var userId = ''
+        var level = 0
+        data.forEach((item) => {
+          if (item.level > level) {
+            level = item.level
+            userId = item.userId
           }
         })
-      }
+        this.newusers.forEach((item) => {
+          if (item.userId !== userId) {
+            document.getElementById('main' + item.userId).style.border = 'none'
+          }
+        })
+        // console.log(level)
+        if (level !== 0) {
+          this.setborder(userId)
+        }
+      })
     },
 
     //取消/打开订阅
@@ -1090,16 +1113,13 @@ export default {
     //根据音频回调设置边框
     setborder(id) {
       if (id == 0) {
-        id = this.joininfo.userId
+        var id = this.joininfo.userId
       }
       if (!this.pspeak) {
-        if (this.borderid) {
-          // 打开自己小视图的预览
-          document.getElementById('main' + this.borderid).style.border = 'block'
-        }
         document.getElementById('main' + id).style.border = '1px solid #00ccff'
         this.borderid = id
       } else {
+        // console.log('演讲者视图')
         var borderid = this.borderid
         this.borderid = id
         if (id !== borderid) {
@@ -1108,8 +1128,12 @@ export default {
             // this.unSubscribe(borderid);
             setTimeout(() => {
               this.openview(document.getElementById('share'))
-              // 小视图也要显示，所以注释
-              // document.getElementById('main' + borderid).style.display = 'block'
+              document.getElementById('main' + borderid).style.display = 'block'
+              // +++
+              document.getElementById(
+                'main' + this.joininfo.userId
+              ).style.display = 'none'
+              console.log('隐藏自己', this.joininfo.userId)
               this.users.forEach((item) => {
                 if (item.userId == borderid) {
                   this.subscribe(item)
@@ -1117,6 +1141,7 @@ export default {
               })
             }, 500)
           } else if (borderid == this.joininfo.userId) {
+            // console.log('1139', 'id===', id, 'borderid==', borderid)
             this.closeView()
             // this.unSubscribe(id);
             setTimeout(() => {
@@ -1135,6 +1160,11 @@ export default {
                     .then((res) => {
                       var dom = document.getElementById('share')
                       this.sdk.setDisplayRemoteVideo(id, dom, 1)
+                      // +++
+                      document.getElementById(
+                        'main' + item.userId
+                      ).style.display = 'none'
+                      // console.log('隐藏1161', item.userId)
                       this.closecmare.forEach((item, key) => {
                         if (item == id) {
                           this.muteCamera(id, 0)
@@ -1152,8 +1182,7 @@ export default {
               })
             }, 500)
           } else {
-            // this.unSubscribe(id);
-            // this.unSubscribe(borderid);
+            // console.log('1180', 'id==', id, 'borderid==', borderid)
             setTimeout(() => {
               this.users.forEach((item) => {
                 if (item.userId == borderid) {
@@ -1183,6 +1212,11 @@ export default {
                   console.log('subscribe失败', err)
                 })
             }, 500)
+            // 小视图的隐藏与显示，id为当前说话的人，borderid为上一个说话的人
+            document.getElementById('main' + id).style.display = 'none'
+            if (borderid) {
+              document.getElementById('main' + borderid).style.display = 'block'
+            }
           }
         }
       }
@@ -1869,37 +1903,44 @@ export default {
           return
         // 主持人移交权限
         case 'handHost':
-          console.log(data)
-          // 如果id等于我自己，分为两种情况：1.别人给我，2.我收回别人
-          if (data.message.userId == this.joininfo.userId) {
-            // 如果我的admin为0，则代表别人给我
+          // console.log(data)
+          const getHost = JSON.parse(data.getHost)
+          const putHost = JSON.parse(data.putHost)
+          // console.log('getHost', getHost.userId)
+          // console.log('putHost', putHost.userId)
+          if (getHost.userId == this.joininfo.userId) {
             if (this.admin == 0) {
-              if (data.message.value == '1') {
-                this.$message.success('您的主持人权限被收回')
-                this.$store.commit('setadmin', 0)
-              } else if (data.message.value == '0') {
-                this.$message.success('您已被赋予主持人')
-                this.$store.commit('setadmin', 2)
-              }
-              // 如果我的admin为1或3，则代表我收回别人的权限
-            } else if (this.admin == 1 || this.admin == 3) {
+              this.$message.success('您已被赋予主持人')
+              this.$store.commit('setadmin', 2)
+            } else if (this.admin == 3) {
               this.$message.success('您已收回主持人权限')
               this.$store.commit('setadmin', 1)
             }
-            // 如果收到id不是我，则更新参会者列表
-          } else if (data.message.userId !== this.joininfo.userId) {
-            this.plist.forEach((v) => {
-              if (v.userId == data.message.userId) {
-                if (data.message.value == '0') {
-                  this.$message.success(v.username + '已成为主持人')
-                  this.$store.commit('setisgetplist', 1)
-                } else {
-                  this.$message.success(v.username + '已收回主持人权限')
-                }
-              }
-            })
+          } else if (putHost.userId == this.joininfo.userId) {
+            console.log(getHost.username)
+            if (this.admin == 2) {
+              this.$message.success('您已失去主持人权限')
+              this.$store.commit('setadmin', 0)
+            } else {
+              this.$message.success(`${getHost.username}已成为主持人`)
+              this.$store.commit('setadmin', 3)
+            }
+          } else if (
+            putHost.userId !== this.joininfo.userId &&
+            getHost.userId !== this.joininfo.userId
+          ) {
+            this.$message.success(`${getHost.username}已成为新主持人`)
           }
-          this.$store.commit('setisgetplist', 1)
+          this.plist.forEach((item, i) => {
+            if (item.userId == getHost.userId) {
+              this.plist.splice(i, 1)
+              this.plist.unshift(getHost)
+            } else if (item.userId == putHost.userId) {
+              this.plist.splice(i, 1, putHost)
+            }
+          })
+          // console.log(this.plist)
+          this.$store.commit('setplist', this.plist)
           return
         // 会议超时退出
         case 'timepermit':
@@ -1912,33 +1953,51 @@ export default {
         // 移交录制权限
         case 'transcribe':
           console.log(data)
+          const transcribeData = JSON.parse(data.message)
           if (
-            data.message.userId == this.joininfo.userId &&
+            transcribeData.userId == this.joininfo.userId &&
             (this.admin !== 1 || this.admin !== 2)
           ) {
-            if (data.message.vaule == '1') {
+            if (transcribeData.transcribe == '1') {
               this.$message.success('您已被赋予录制权限')
             } else {
               this.$message.success('您已被收回录制权限')
             }
           }
-          this.$store.commit('setisgetplist', 1)
+
+          this.plist.forEach((item, i) => {
+            if (transcribeData.userId == item.userId) {
+              this.plist.splice(i, 1, transcribeData)
+            }
+          })
+          console.log(this.plist)
+          this.$store.commit('setplist', this.plist)
           return
         // 移交直播权限
         case 'streaming':
           console.log(data)
+          const streamingData = JSON.parse(data.message)
+
           if (
-            data.message.userId == this.joininfo.userId &&
+            streamingData.userId == this.joininfo.userId &&
             (this.admin !== 1 || this.admin !== 2)
           ) {
-            if (data.message.value == '1') {
+            if (streamingData.streaming == '1') {
               this.$message.success('您已被赋予直播权限')
             } else {
               this.$message.success('您已被收回直播权限')
             }
           }
-          this.$store.commit('setisgetplist', 1)
+          // this.$store.commit('setisgetplist', 1)
+          this.plist.forEach((item, i) => {
+            if (streamingData.userId == item.userId) {
+              this.plist.splice(i, 1, streamingData)
+            }
+          })
+          console.log(this.plist)
+          this.$store.commit('setplist', this.plist)
           return
+        // 全体禁言
         case 'allscene':
           console.log(data)
           data.message.userId = this.joininfo.userId
@@ -2057,10 +2116,10 @@ body {
   width: 99%;
   /* min-width: 1500px; */
   /* border: 1px red solid; */
-  height: 84vh;
+  height: 90vh;
   position: relative;
   margin: 0 auto;
-  margin-top: 10px;
+  margin-top: 5.5vh;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -2087,6 +2146,7 @@ body {
   color: #fff;
   cursor: pointer;
   opacity: 0.7;
+  display: block;
 }
 .el-icon-arrow-right {
   position: absolute;
@@ -2097,6 +2157,7 @@ body {
   color: #fff;
   cursor: pointer;
   opacity: 0.7;
+  display: block;
 }
 .user-vedio {
   width: 241.7px;
@@ -2265,7 +2326,7 @@ body {
   padding: 0 5px;
   position: absolute;
   right: 0px;
-  top: 0px;
+  top: -4%;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 40px;
   z-index: 1;

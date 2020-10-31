@@ -4,7 +4,7 @@
     <div class="bottom-content" v-if="bottom_img_show" style="position:relative;">
       <!-- 选择推流地址 -->
       <div v-if="liveAdd"
-        style="background:rgba(0,0,0,.3);padding:8px 0;padding-left:30px;border-radius:5px;z-index:99999;position:absolute;top:-100px;right:35%">
+        style="background:rgba(0,0,0,.5);padding:8px 0;padding-left:30px;border-radius:5px;z-index:99999;position:absolute;top:-100px;right:35%">
         <el-radio-group v-model="changeAddress">
           <el-radio label="1">使用自己的推流地址</el-radio><br>
           <el-radio style="margin-top:10px;" label="2">使用轻直播推流地址</el-radio>
@@ -28,10 +28,10 @@
     </div>
 
     <!-- 离开/退出会议按钮 -->
-    <el-dialog title="您需要做的操作是？" :visible.sync="leave" :modal="false" width="30%" center>
+    <el-dialog title="您需要做的操作是？" :visible.sync="leave" :modal="false" width="30%" center style="minWidth:257px !important;">
       <span slot="footer" class="dialog-footer">
-        <el-button @click="leavemeet('exit')">离开会议</el-button>
-        <el-button type="primary" @click="leavemeet('over')" v-if="admin==1||admin==2" style="background:#00ccff;border:0;">结束会议
+        <el-button @click="leavemeet('exit')" round>离开会议</el-button>
+        <el-button round type="primary" @click="leavemeet('over')" v-if="admin==1||admin==2" style="background:#00ccff;border:0;">结束会议
         </el-button>
       </span>
     </el-dialog>
@@ -468,6 +468,7 @@ export default {
         }
       })
     },
+
     // 选择推流地址
     submit() {
       console.log(this.changeAddress)
@@ -532,10 +533,10 @@ export default {
       // $('.bottom-content').stop().fadeTo(800, 0)
     },
 
-    opennew() {
-      const { ipcRenderer, BrowserWindow } = window.require('electron')
-      ipcRenderer.send('opennew', 'peoplelist')
-    },
+    // opennew() {
+    //   const { ipcRenderer, BrowserWindow } = window.require('electron')
+    //   ipcRenderer.send('opennew', 'peoplelist')
+    // },
 
     //点击事件
     webrtcbottom(type) {
@@ -1012,6 +1013,8 @@ export default {
 
     //离开会议
     leavemeet(type) {
+      // const { ipcRenderer } = window.require('electron')
+      // ipcRenderer.send('sendreplay','this is  renderer aaa');
       if (type == 'over') {
         this.send_msg('over', 0)
       }
@@ -1035,12 +1038,11 @@ export default {
 }
 </script>
 
-<style lang='less'>
+<style lang='less' scoped>
 .bottom-main {
   position: fixed;
   left: 0;
   bottom: 1vh;
-  /* border: 1px solid red; */
   width: 100%;
   height: 8vh;
 }
@@ -1104,13 +1106,11 @@ export default {
 }
 
 .invitation-left {
-  /* border: 1px solid red; */
   font-weight: 400;
   font-size: 16px;
   color: #666;
 }
 .invitation-right {
-  /* border: 1px solid red; */
   font-weight: 600;
   font-size: 16px;
   color: #333;
@@ -1156,12 +1156,22 @@ export default {
     @media screen and (min-width: 100px) and (max-width: 1319px) {
       width: 585px !important;
       height: 576px !important;
+      &:nth-child(1) {
+        height: 230px !important;
+      }
     }
     @media screen and (min-width: 1320px) {
       width: 585px !important;
       height: 576px !important;
+      &:nth-child(1) {
+        height: 230px !important;
+      }
+    }
+    & /deep/.el-dialog--center {
+      min-width: 257px !important;
     }
   }
+
   .invita {
     /deep/.el-dialog__header {
       background: #f7f7f7 !important;
