@@ -588,7 +588,7 @@ export default {
   .el-form {
     .el-form-item {
       .el-input {
-        width: 25%;
+        width: 50%;
         /deep/.el-input__inner {
           // height: 30px !important;
           &:focus {

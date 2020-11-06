@@ -9,12 +9,7 @@ import {
 
 // axios 默认配置  更多配置查看Axios中文文档
 axios.defaults.timeout = 5000; // 超时默认值
-if (axios.defaults.timeout > 5000) {
-  Message({
-    message: '请求超时，请重试',
-    type: 'error'
-  })
-}
+
 if (process.env.NODE_ENV === 'development') {} else {
   axios.defaults.baseURL = APIUrl.baseURL; // 默认baseURL
 }
@@ -41,8 +36,8 @@ axios.interceptors.request.use(
 // ajax请求回调之前拦截 对请求返回的信息做统一处理 比如error为401无权限则跳转到登陆界面
 axios.interceptors.response.use(
   response => {
-    // console.log(response);
     switch (response.data.status) {
+      // 判断token失效
       case 4004:
         response.data.msg = '未授权，请登录';
         Message({
@@ -60,6 +55,7 @@ axios.interceptors.response.use(
   error => {
     console.log(error);
     return Promise.reject(error);
+
   }
 );
 
@@ -78,6 +74,15 @@ export function post(url, data = {}) {
         resolve(response.data);
       }, err => {
         reject(err);
+        console.log(err.request)
+        // 判断请求超时
+        if (err.request.readyState == 4 && status == 0) {
+          Message({
+            message: '请求超时，请重试',
+            type: 'error'
+          })
+        }
+
       });
   });
 }

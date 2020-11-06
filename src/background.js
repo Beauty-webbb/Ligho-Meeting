@@ -156,8 +156,8 @@ ipcMain.on('opennew', function (data) {
     height: 970,
     // minWidth: 385,
     // minHeight: 750,
-    // maxWidth:450,
-    // maxHeight:970,
+    // maxWidth: 450,
+    // maxHeight: 970,
     // resizable: false, // 禁止窗口放大缩小
     webPreferences: {
       webSecurity: false,

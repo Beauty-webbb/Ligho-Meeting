@@ -85,7 +85,7 @@ export default {
   // margin-top: 6%;
   position: relative;
   height: 85%;
-  width: 50%;
+  width: 65%;
   text-align: center;
   h2 {
     width: 70%;
@@ -165,21 +165,21 @@ export default {
       padding: 10px 15px;
     }
     @media screen and (min-width: 701px) and (max-width: 1100px) {
-      font-size: 18px;
+      font-size: 16px;
       right: 3%;
       bottom: 36.5%;
       padding: 10px 15px;
     }
     @media screen and (min-width: 1101px) and (max-width: 1520px) {
-      font-size: 20px;
+      font-size: 16px;
       right: 3%;
-      bottom: 23%;
+      bottom: 25%;
       padding: 10px 15px;
     }
     @media screen and (min-width: 1521px) {
-      font-size: 22px;
+      font-size: 16px;
       right: 3%;
-      bottom: 25.5%;
+      bottom: 29%;
       padding: 8px 12px;
     }
   }

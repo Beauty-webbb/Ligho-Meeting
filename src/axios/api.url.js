@@ -36,5 +36,6 @@ export default {
     account:                    '/api/login/account',               // 绑定轻直播账号
     DescribeChannelUsers:       '/api/channel/DescribeChannelUsers',// 查询频道实时在线用户列表
     giveTran:                   '/api/meet/giveTran',               // 赋予(获取) 录制/直播权限
+    searchPar:                  '/api/meet/searchPar',              // 搜索参会者
   },
 };

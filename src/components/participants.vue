@@ -4,7 +4,7 @@
       <div class="title">
         <h3>参会者</h3>
         <!-- 客户端启用 -->
-        <!-- <i title="弹出参会者列表" class="iconfont icon-danchuchuangkou"
+        <!-- <i @click="opennew" title="弹出参会者列表" class="iconfont icon-danchuchuangkou"
           style="cursor:pointer;color:#00ccff;font-size:25px;position:absolute;top:1.4%;right:5%;"></i> -->
       </div>
       <div class="cont">
@@ -16,13 +16,58 @@
         </div>
 
         <div class="cont-right">
-          <el-input placeholder="搜索参会人" v-model="peoplesearch" class="input-with-select">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input @keyup.enter.native="searchPart" @input="clearInput" placeholder="搜索参会人" v-model="peoplesearch" class="input-with-select">
+            <el-button @click="searchPart" slot="append" icon="el-icon-search" style="font-size:18px;"></el-button>
           </el-input>
         </div>
       </div>
-      <!-- @click="clickmyself(item.userId)" -->
-      <div class="peoplelist" v-for="(item,key) in plist" :key="key" :style="{'background-color':bcolor(key)}">
+      <!-- 搜索参会者列表 -->
+      <div v-if="searchList.length">
+        <div @click="clickmyself(item.userId)" class="peoplelist" v-for="(item,key) in searchList" :key="key"
+          :style="{'background-color':bcolor(key)}">
+          <el-dropdown @command="handleCommand" placement="bottom" trigger="click"
+            style="width: 70%; height: 3.5vh; padding-left: 1vh; font-size: 19px; display: flex; align-items: center;">
+            <div class="peoplelist-left">
+              <div class="pavatar"><img style="width: 100%;" :src="item.avatar" /></div>
+              <span>{{item.username}}</span>
+            </div>
+            <!-- v-if="showDropdowm" -->
+            <el-dropdown-menu v-if="showDropdowm">
+              <el-dropdown-item v-if="admin==1||admin==3||admin==2" @click="moveadmin(item.userId)"
+                :command="{type:'move',id:item.userId,message:item.admin}">
+                {{admin==3?'收回主持人权限':'移交主持人权限'}}
+              </el-dropdown-item>
+              <el-dropdown-item v-if="admin==1||admin==2" @click="handtranscribe(item.userId)"
+                :command="{type:'transcribe',id:item.userId,message:item.transcribe}">
+                {{item.transcribe?'收回录制权限':'赋予录制权限'}}
+              </el-dropdown-item>
+              <el-dropdown-item v-if="admin==1||admin==2" @click="handstreaming(item.userId)"
+                :command="{type:'streaming',id:item.userId,message:item.streaming}">
+                {{item.streaming?'收回直播权限':'赋予直播权限'}}
+              </el-dropdown-item>
+              <!-- <el-dropdown-item v-if="admin==1||admin==2" @click="allScene(item.userId)"
+              :command="{type:'allscene',id:item.userId,message:allscene?1:0}">
+              {{allscene?'解除全体禁言':'全体禁言'}}
+            </el-dropdown-item> -->
+              <el-dropdown-item v-if="admin==1||admin==2" @click="moveOutMeet(item.userId)"
+                :command="{type:'remove',id:item.userId,message:item.username}">
+                移出会议
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+
+          <div class="peoplelist-right">
+            <img :src='item.video ? require("../assets/canhui/video.png") : require("../assets/canhui/videoclose.png")'
+              @click="joininfo.userId != item.userId ? send_msg('Hostvideo',item.video,item.userId,key) : send_msg('video',item.video,item.userId,key) " />
+            <img :src='item.scene ? require("../assets/canhui/audio.png") : require("../assets/canhui/audioclose.png")'
+              @click="joininfo.userId != item.userId ? send_msg('Hostscene',item.scene,item.userId,key) : send_msg('scene',item.scene,item.userId,key) " />
+          </div>
+        </div>
+      </div>
+
+      <!-- 全部参会者列表 -->
+      <div v-else @click="clickmyself(item.userId)" class="peoplelist" v-for="(item,key) in plist" :key="key"
+        :style="{'background-color':bcolor(key)}">
         <el-dropdown @command="handleCommand" placement="bottom" trigger="click"
           style="width: 70%; height: 3.5vh; padding-left: 1vh; font-size: 19px; display: flex; align-items: center;">
           <div class="peoplelist-left">
@@ -30,7 +75,7 @@
             <span>{{item.username}}</span>
           </div>
           <!-- v-if="showDropdowm" -->
-          <el-dropdown-menu>
+          <el-dropdown-menu v-if="showDropdowm">
             <el-dropdown-item v-if="admin==1||admin==3||admin==2" @click="moveadmin(item.userId)"
               :command="{type:'move',id:item.userId,message:item.admin}">
               {{admin==3?'收回主持人权限':'移交主持人权限'}}
@@ -61,8 +106,16 @@
             @click="joininfo.userId != item.userId ? send_msg('Hostscene',item.scene,item.userId,key) : send_msg('scene',item.scene,item.userId,key) " />
         </div>
       </div>
+
+      <!-- 底部按钮 -->
       <div class="bottom">
-        <el-button type="info" plain @click="closeDrawer()">关闭</el-button>
+        <el-button style="width:104px;margin-right:10px;" round @click="closeDrawer()">关闭</el-button>
+        <div v-if="plist.length!==1&&admin==1||admin==2">
+          <el-button v-if="!allscene" round @click="allScene({id:joininfo.userId,type:'allscene',message:0})">全体禁言</el-button>
+          <el-button v-if="allscene" type="info" round @click="allScene({id:joininfo.userId,type:'allscene',message:1})">解除禁言
+          </el-button>
+        </div>
+
       </div>
     </el-drawer>
   </div>
@@ -75,12 +128,13 @@ import { post, get } from '@/axios/index'
 import vm from '@/event.js'
 import Vue from 'vue'
 export default {
+  props: ['video_flag', 'scene_flag'],
   data() {
     return {
       contdata: [
-        { img: require('../assets/canhui/people.png'), num: 0 },
-        { img: require('../assets/canhui/video.png'), num: 0 },
-        { img: require('../assets/canhui/audio.png'), num: 0 },
+        { img: require('../assets/canhui/people.svg'), num: 0 },
+        { img: require('../assets/canhui/video.svg'), num: 0 },
+        { img: require('../assets/canhui/audio.svg'), num: 0 },
       ],
       peoplesearch: '',
       plist: [],
@@ -88,6 +142,7 @@ export default {
       moveadminstate: true,
       showDropdowm: true,
       allscene: false, // 是否全体禁言
+      searchList: [],
     }
   },
   watch: {
@@ -129,12 +184,40 @@ export default {
     // },
   },
   methods: {
+    // 清空搜索参会者框，展示全部参会者
+    clearInput() {
+      if (!this.peoplesearch) {
+        this.searchList = []
+      }
+    },
+
+    // 搜索参会者
+    searchPart() {
+      if (!this.peoplesearch) {
+        this.$message.warning('请输入参会者姓名')
+        return false
+      }
+      const searchPar = APIUrl.util.searchPar
+      post(searchPar, {
+        meetingId: this.joininfo.channelId,
+        username: this.peoplesearch,
+      }).then((res) => {
+        console.log('搜索参会者', res)
+        if (!res.data.length) {
+          this.$message.warning('暂无数据')
+        } else {
+          this.searchList = res.data
+        }
+      })
+    },
+
     // 客户端弹出参会者列表
     opennew() {
       this.$store.commit('setpeoplelist', false)
       const { ipcRenderer, BrowserWindow } = window.require('electron')
       ipcRenderer.send('opennew', 'peoplelist')
     },
+
     // 显示/隐藏下拉列表
     clickmyself(id) {
       if (id == this.joininfo.userId) {
@@ -147,17 +230,13 @@ export default {
 
     // 点击子菜单的回调
     handleCommand(data) {
-      // console.log(data)
-      if (data.id == this.joininfo.userId && data.type !== 'allscene') {
-        this.$message.warning('不能操作自己')
-        return false
-      } else if (this.admin == 0) {
+      if (this.admin == 0) {
         this.$message.warning('您无权限')
         return false
-      } else if (data.id == this.joininfo.userId && data.type !== 'remove') {
+      } else if (data.id == this.joininfo.userId && data.type !== 'allscene') {
         this.$message.warning('不能操作自己')
+        return false
       }
-
       // 判断类型，调用对应方法
       if (data.type == 'move') {
         this.moveadmin(data)
@@ -168,6 +247,10 @@ export default {
       } else if (data.type == 'allscene') {
         this.allScene(data)
       } else if (data.type == 'remove') {
+        if (data.id == this.joininfo.userId) {
+          this.$message.warning('不能操作自己')
+          return false
+        }
         this.moveOutMeet(data)
       }
     },
@@ -195,7 +278,7 @@ export default {
 
     // 全体静音
     allScene(data) {
-      console.log(data)
+      // console.log(data)
       const activepush = APIUrl.util.activepush
       post(activepush, {
         userId: data.id,
@@ -207,17 +290,28 @@ export default {
         if (res.status == 200) {
           if (this.allscene) {
             this.$message.success('已解除全体禁言')
+            this.plist.forEach((item) => {
+              if (item.userId !== this.joininfo.userId) {
+                item.scene = 1
+              }
+            })
           } else {
             this.$message.success('已开启全体禁言')
+            this.plist.forEach((item) => {
+              if (item.userId !== this.joininfo.userId) {
+                item.scene = 0
+              }
+            })
           }
           this.allscene = !this.allscene
+          this.setcontdata()
         }
       })
     },
 
     // 赋予直播权限
     handstreaming(data) {
-      // console.log('直播', data)
+      console.log('直播', data)
       const message = data.message ? 0 : 1
       const giveTran = APIUrl.util.giveTran
       post(giveTran, {
@@ -226,7 +320,7 @@ export default {
         type: 'streaming',
         message: message,
       }).then((res) => {
-        console.log('直播', res)
+        console.log('直播成功', res)
         if (res.status == 200) {
           this.$message.success(res.message)
           // this.$store.commit('setisgetplist', 1)
@@ -261,7 +355,7 @@ export default {
 
     // 移交主持人权限
     moveadmin(data) {
-      console.log(data)
+      // console.log(data)
       var name = ''
       this.plist.forEach((item) => {
         if (item.userId == data.id) {
@@ -282,11 +376,8 @@ export default {
               userId: data.id,
             }).then((res) => {
               console.log('移交权限', res)
-              if (res.status == 200) {
-                // this.moveadminstate = false
-                // this.$store.commit('setisgetplist', 1)
-              } else {
-                this.$message.error(res.message)
+              if (res.data == '正在录制中,无法变更主持人权限' || res.data == '正在直播中,无法变更主持人权限') {
+                this.$message.error(res.data)
               }
             })
           })
@@ -312,12 +403,11 @@ export default {
                     userId: this.joininfo.userId,
                   }).then((res) => {
                     console.log('收回权限', res)
-                    if (res.status == 200) {
+                    if (res.data == '正在录制中,无法变更主持人权限' || res.data == '正在直播中,无法变更主持人权限') {
+                      this.$message.error(res.data)
                       // this.moveadminstate = true
                       // this.$message.success(`您已收回主持人权限`)
                       // this.$store.commit('setisgetplist', 1)
-                    } else {
-                      this.$message.error(res.message)
                     }
                   })
                 })
@@ -355,6 +445,7 @@ export default {
     //关闭参会者列表
     closeDrawer() {
       this.$store.commit('setpeoplelist', false)
+      this.peoplesearch = ''
     },
 
     //参会者列表背景颜色的设置
@@ -375,15 +466,15 @@ export default {
       const joininf = window.localStorage.getItem('joininfo')
       const joininfo = JSON.parse(joininf)
       const apiurl = APIUrl.util.getParticipant
-      post(apiurl, { meetingId: joininfo.channelId })
+      post(apiurl, { meetingId: joininfo.channelId, page: 1, limit: 0 })
         .then((res) => {
-          console.log(res, '子组件参会者')
+          // console.log(res, '子组件参会者')
           if (res.status == 200) {
             // console.log(res.data.participant)
             this.$store.commit('setisgetplist', 0)
-            this.plist = res.data.participant
-            this.$store.commit('setplist', res.data.participant)
-            this.isadmin(res.data.participant)
+            this.plist = res.data.participant.data
+            this.$store.commit('setplist', res.data.participant.data)
+            this.isadmin(res.data.participant.data)
           } else {
             this.$message.error(res.message)
           }
@@ -409,29 +500,38 @@ export default {
     //发送消息
     send_msg(type, message, uid, key) {
       if (type == 'video') {
-        const data = this.plist[key]
-        Vue.set(this.plist, key, {
-          admin: data.admin,
-          avatar: data.avatar,
-          scene: data.scene,
-          video: message ? 0 : 1,
-          userId: data.userId,
-          username: data.username,
-        })
-        this.$emit('Camera', message ? true : false)
+        console.log(this.video_flag)
+        if (this.video_flag) {
+          const data = this.plist[key]
+          Vue.set(this.plist, key, {
+            admin: data.admin,
+            avatar: data.avatar,
+            scene: data.scene,
+            video: message ? 0 : 1,
+            userId: data.userId,
+            username: data.username,
+          })
+          this.$emit('Camera', message ? true : false)
+        } else {
+          return
+        }
       }
       if (type == 'scene') {
         // this.plist[key].scene = message ? 0 : 1;
-        const data = this.plist[key]
-        Vue.set(this.plist, key, {
-          admin: data.admin,
-          avatar: data.avatar,
-          scene: message ? 0 : 1,
-          video: data.video,
-          userId: data.userId,
-          username: data.username,
-        })
-        this.$emit('Audio', message ? true : false)
+        if (this.scene_flag) {
+          const data = this.plist[key]
+          Vue.set(this.plist, key, {
+            admin: data.admin,
+            avatar: data.avatar,
+            scene: message ? 0 : 1,
+            video: data.video,
+            userId: data.userId,
+            username: data.username,
+          })
+          this.$emit('Audio', message ? true : false)
+        } else {
+          return
+        }
       }
 
       if (type == 'Hostvideo' || type == 'Hostscene') {
@@ -481,6 +581,7 @@ export default {
 
     //修改状态
     setplist(type, data) {
+      // console.log(data)
       if (type == 'save') {
         var num = 0
         for (var i = 0; i < this.plist.length; i++) {
@@ -559,7 +660,7 @@ export default {
       var closecmarenum = 0
       for (var i = 0; i < data.length; i++) {
         if (data[i].userId == joininfo.userId) {
-          console.log(data[i].admin)
+          // console.log(data[i].admin)
           // if (data[i].admin == 1 || data[i].admin == 2) {
           //   this.$store.commit('setadmin', 1)
           // }是否未主持人身份
@@ -587,6 +688,8 @@ export default {
   /* border: 1px solid red; */
   width: 100%;
   text-align: center;
+  display: flex;
+  justify-content: center;
 }
 .title {
   width: 100%;
@@ -606,16 +709,15 @@ export default {
   height: 4vh;
   min-height: 50px;
   display: flex;
-  /* border: 1px red solid; */
+  margin-bottom: 10px;
+  margin-left: 14px;
 }
 .cont-left {
-  width: 50%;
+  width: 48% !important;
   height: 4vh;
   min-height: 50px;
   display: flex;
   align-items: center;
-  /* justify-content:center; */
-  /* border: 1px saddlebrown solid; */
 }
 .cont-left-people {
   display: flex;
@@ -628,21 +730,25 @@ export default {
   width: 25px;
   margin-right: 0.5vh;
 }
+.cont-left-people:nth-child(3) img{
+  width: 20px;
+}
 .cont-right {
   height: 4vh;
-  width: 48%;
+  width: 50%;
   min-height: 50px;
-  /* border: 1px solid red; */
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.cont-ringht .el-icon-search {
+  font-size: 18px;
 }
 .cont-right .el-input__inner {
   border-radius: 0 !important;
 }
 .peoplelist {
   width: 100%;
-  /* border: 1px solid red; */
   height: 5vh;
   min-height: 60px;
   display: flex;
@@ -653,7 +759,6 @@ export default {
   width: 70%;
   height: 3.5vh;
   padding-left: 1vh;
-  /* border: 1px solid red; */
   font-size: 19px;
   display: flex;
   align-items: center;
@@ -672,7 +777,6 @@ export default {
 .peoplelist-right {
   width: 30%;
   height: 3.5vh;
-  /* border: 1px solid red; */
   display: flex;
   align-items: center;
   justify-content: space-around;

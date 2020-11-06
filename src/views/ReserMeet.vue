@@ -2,17 +2,25 @@
   <div class="reserMeet">
     <div class="main">
       <header>
-        <div class="avatar">
-          <img :src="userinfo.avatar" alt />
+        <div class="w" style="height:100%;">
+          <div style="float:left;display:flex;justify-content: center;align-items: center;height: 100%;">
+            <img src="../assets/webrtcs/meetlogo.png" alt="" style="width:155px;height:57px;">
+          </div>
+          <div style="float:right;display:flex;align-items:center;">
+            <div class="avatar">
+              <img :src="userinfo.avatar" alt />
+            </div>
+            <div class="search">
+              <i class="el-icon-search"></i>
+              <input type="text" placeholder="搜索" />
+            </div>
+          </div>
         </div>
-        <div class="search">
-          <i class="el-icon-search"></i>
-          <input type="text" placeholder="搜索" />
-        </div>
-        <i class="el-icon-close" @click="$router.push('/menu')"></i>
-      </header>
 
-      <div style="display: flex">
+      </header>
+      <!-- <i class="el-icon-close" @click="$router.push('/menu')"></i> -->
+
+      <div style="display: flex;background: #F9F9FD;" class="w">
         <el-aside>
           <el-col :span="6">
             <div style="padding: 2vh 2vw; box-sizing: border-box">
@@ -45,12 +53,18 @@
 
         <el-main style="
             padding: 0;
-            background-color: #f8f8f8;
+            background-color: #fff;
             displapy: flex;
             justify-content: center;
             align-items: center;
-            width: 80%;
+            width: 79%;
+            margin-left:20px;
+            position:relative;
           ">
+          <div style="position:absolute;top:26px;right:27px;cursor:pointer;" @click="$router.push('/menu')">
+            <img src="../assets/webrtcs/back.svg" alt="" style="margin-top:-1px;width:16px;height:24px;vertical-align:middle;margin-right:5px;">
+            <span style="color:#999;">返回首页</span>
+          </div>
           <router-view :meetlist="meetlist" :meetId="meetId" @delMeet="delMeet" @showEdit="showEditDialog">
           </router-view>
         </el-main>
@@ -111,7 +125,7 @@
         </el-dialog>
 
         <!--个人会议ID设置 -->
-        <el-dialog title="个人会议ID设置" width="35vw" center :visible.sync="showEditMeet">
+        <el-dialog custom-class="selfId" title="个人会议ID设置" width="35vw" center :visible.sync="showEditMeet">
           <el-form ref="Idform" :model="IdForm" label-width="88px">
             <el-form-item label="个人会议ID">
               <el-input size='small' v-model="form.meetingId" style="width: 98%" :disabled="true" :placeholder="IdForm.meetingId">
@@ -343,19 +357,10 @@ export default {
       let yy = new Date().getFullYear()
       let mm = new Date().getMonth() + 1
       mm = mm < 10 ? '0' + mm : mm
-      let dd =
-        new Date().getDate() < 10
-          ? '0' + new Date().getDate()
-          : new Date().getDate()
+      let dd = new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate()
       let hh = new Date().getHours()
-      let mf =
-        new Date().getMinutes() < 10
-          ? '0' + new Date().getMinutes()
-          : new Date().getMinutes()
-      let ss =
-        new Date().getSeconds() < 10
-          ? '0' + new Date().getSeconds()
-          : new Date().getSeconds()
+      let mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
+      let ss = new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()
 
       return yy + '-' + mm + '-' + dd + ' ' + hh + ':' + mf + ':' + ss
     },
@@ -379,14 +384,7 @@ export default {
         })
         return false
       }
-      if (
-        !this.form.startDate ||
-        !this.form.stopDate ||
-        !this.form.startTime ||
-        !this.form.stopTime ||
-        !this.form.meetTopic ||
-        !this.form.options.length
-      ) {
+      if (!this.form.startDate || !this.form.stopDate || !this.form.startTime || !this.form.stopTime || !this.form.meetTopic) {
         this.$message.warning('请填写完整信息')
         return false
       }
@@ -394,17 +392,13 @@ export default {
       post(apiurl, {
         userId: this.userinfo.userId,
         meetTopic: this.form.meetTopic,
-        meetHost: this.userinfo.username
-          ? this.userinfo.username
-          : this.userinfo.phone,
+        meetHost: this.userinfo.username ? this.userinfo.username : this.userinfo.phone,
         meetPwd: this.form.pwd || '',
         startTime: this.form.startDate + ' ' + this.form.startTime,
         stopTime: this.form.stopDate + ' ' + this.form.stopTime,
         timestamp: this.getTime(),
         oneself: this.form.options.includes('使用个人会议ID') ? 1 : 0,
-        tailStatus: this.form.options.includes('允许在主持人入会前加入')
-          ? 1
-          : 0,
+        tailStatus: this.form.options.includes('允许在主持人入会前加入') ? 1 : 0,
       })
         .then((res) => {
           console.log('安排会议', res)
@@ -455,8 +449,7 @@ export default {
           this.formData.stopTime = this.meetDeatil.stop
           this.formData.pwd = this.meetDeatil.meetPwd
           this.formData.beforeHost = this.meetDeatil.tailStatus ? true : false
-          this.formData.oneself =
-            this.meetDeatil.meetingId == this.userinfo.meetingId ? true : false
+          this.formData.oneself = this.meetDeatil.meetingId == this.userinfo.meetingId ? true : false
           // this.getMeetList() // 获取会议列表
         } else {
           this.$message.error(res.message)
@@ -470,10 +463,7 @@ export default {
       const updateMeet = APIUrl.util.updateMeet
       // console.log(this.meetId);
       console.log(this.userinfo.username)
-      if (
-        this.formData.startDate &&
-        this.formData.stopDate < this.formData.startDate
-      ) {
+      if (this.formData.startDate && this.formData.stopDate < this.formData.startDate) {
         this.$message({
           message: '会议结束时间不得早于开始时间',
           type: 'warning',
@@ -523,14 +513,8 @@ export default {
           this.IdForm.scene = res.data.scene_profile ? true : false
           this.IdForm.transcribe = res.data.transcribe ? true : false
           this.IdForm.video = res.data.video_profile ? true : false
-          this.$store.commit(
-            'setaudioStatus',
-            res.data.scene_profile ? true : false
-          )
-          this.$store.commit(
-            'setvideoStatus',
-            res.data.video_profile ? true : false
-          )
+          this.$store.commit('setaudioStatus', res.data.scene_profile ? true : false)
+          this.$store.commit('setvideoStatus', res.data.video_profile ? true : false)
           this.$forceUpdate()
         }
       })
@@ -567,8 +551,12 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.w {
+  width: 1300px;
+  margin: 0 auto;
+}
 .reserMeet {
-  width: 100%;
+  width: 100vw;
   height: 100%;
   background-color: #fff;
   display: flex;
@@ -578,18 +566,17 @@ export default {
   .main {
     width: 100%;
     height: 100%;
-    background: #ffffff;
+    background: #f9f9fd;
     box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.13);
     header {
-      display: flex;
-      align-items: center;
       width: 100%;
-      height: 8vh;
+      height: 100px;
+      line-height: 100px;
       background: #ffffff;
       box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.05);
-      padding-left: 30px;
       box-sizing: border-box;
       position: relative;
+      margin-bottom: 20px;
       .avatar {
         width: 60px;
         height: 60px;
@@ -606,7 +593,7 @@ export default {
         margin-left: 20px;
         i {
           position: absolute;
-          top: 10px;
+          top: 41px;
           left: 15px;
           font-size: 20px;
           color: #666;
@@ -625,18 +612,19 @@ export default {
           }
         }
       }
-      .el-icon-close {
-        position: absolute;
-        top: 29px;
-        right: 20px;
-        font-size: 24px;
-        color: #666;
-        cursor: pointer;
-        font-weight: 600;
-      }
+    }
+    .el-icon-close {
+      position: absolute;
+      top: 39px;
+      right: 17%;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      font-weight: 600;
     }
     .el-aside {
-      width: 20% !important;
+      width: 30% !important;
+      background-color: #fff;
       /**隐藏滚动条但是可以滚动 */
       &::-webkit-scrollbar {
         display: none;
@@ -644,7 +632,7 @@ export default {
       .el-col {
         width: 100%;
         height: 92vh;
-        border-right: 1px solid rgba(0, 0, 0, 0.08);
+        // border-right: 1px solid rgba(0, 0, 0, 0.08);
         position: relative;
         img {
           position: absolute;
@@ -718,19 +706,33 @@ export default {
     /deep/.el-dialog__wrapper {
       .el-dialog {
         @media screen and (min-width: 100px) and (max-width: 1319px) {
-          width: 585px !important;
+          width: 645px !important;
           height: 576px !important;
+          .selfId {
+            height: 445px !important;
+          }
         }
         @media screen and (min-width: 1320px) {
-          &:nth-child(2) {
-            height: 443px !important;
-          }
-          width: 585px !important;
+          width: 645px !important;
           height: 576px !important;
         }
-        // &:nth-child(2) {
-        //   height: 300px !important;
-        // }
+      }
+      .invitations {
+        width: 32% !important;
+        height: 422px !important;
+        border-radius: 25px !important;
+        .el-dialog__header {
+          padding: 29px 20px 10px !important;
+          span {
+            font-weight: 700;
+          }
+        }
+        .el-dialog__body {
+          padding: 25px 25px 46px !important;
+        }
+      }
+      .selfId {
+        height: 445px !important;
       }
     }
   }

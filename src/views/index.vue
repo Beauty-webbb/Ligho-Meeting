@@ -206,21 +206,21 @@ export default {
     if (JSON.parse(localStorage.getItem('historyList'))) {
       this.historyList = JSON.parse(localStorage.getItem('historyList'))
     }
-    const { ipcRenderer } = window.require('electron')
-    ipcRenderer.on('leave', (event, message) => {
-      this.$loading({
-        lock: true,
-        text: message,
-        spinner: 'el-icon-loading',
-        background: 'rgba(0, 0, 0, 0.7)',
-      })
-    })
-    ipcRenderer.on('joinmeet', (event, message) => {
-      this.centerDialogVisible = true
-      this.joindata.token = message.token
-      this.joindata.pwd = message.pwd
-      this.meetingId = message.meetingId
-    })
+    // const { ipcRenderer } = window.require('electron')
+    // ipcRenderer.on('leave', (event, message) => {
+    //   this.$loading({
+    //     lock: true,
+    //     text: message,
+    //     spinner: 'el-icon-loading',
+    //     background: 'rgba(0, 0, 0, 0.7)',
+    //   })
+    // })
+    // ipcRenderer.on('joinmeet', (event, message) => {
+    //   this.centerDialogVisible = true
+    //   this.joindata.token = message.token
+    //   this.joindata.pwd = message.pwd
+    //   this.meetingId = message.meetingId
+    // })
   },
   methods: {
     querySearch(queryString, cb) {

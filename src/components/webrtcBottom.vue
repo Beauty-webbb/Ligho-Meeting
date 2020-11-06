@@ -13,7 +13,7 @@
         <el-button @click="submit" size="mini" round style="background:#00ccff;color:#fff;margin:10px auto 0 43px;border:0;">确定</el-button>
       </div>
       <div class="bottom-img">
-        <div v-for="(item, key) in bottoms" :key="key" style="text-align: center;">
+        <div v-for="(item, key) in bottoms" :key="key" style="text-align: center; display: flex;justify-content: center;align-items: center;">
           <img @click="webrtcbottom(item.type)" :src="item.img" />
         </div>
       </div>
@@ -37,69 +37,66 @@
     </el-dialog>
 
     <!-- 会议邀请信息 -->
-    <el-dialog class="invita" title="邀请他人加入会议" :visible.sync="invitation" :close-on-click-modal="false" :close-on-press-escape="false"
-      :show-close="true" :modal="false" top="30vh" width="45%" left>
-      <el-row :gutter="20" class="invitation">
-        <el-col :span="3">
-          <div class="invitation-left">会议主题：</div>
-        </el-col>
-        <el-col :span="16">
-          <div class="invitation-right">
-            {{ invitationdata.meetTopic }}
-          </div>
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20" class="invitation">
-        <el-col :span="3">
-          <div class="invitation-left">会议链接：</div>
-        </el-col>
-        <el-col :span="16">
-          <div class="invitation-right">
-            {{ invitationdata.joinMeetUrl }}
-          </div>
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20" class="invitation">
-        <el-col :span="3">
-          <div class="invitation-left">开始时间：</div>
-        </el-col>
-        <el-col :span="16">
-          <div class="invitation-right">
-            {{ invitationdata.startTime }}
-          </div>
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20" class="invitation">
-        <el-col :span="3">
-          <div class="invitation-left">会议ID：</div>
-        </el-col>
-        <el-col :span="16">
-          <div class="invitation-right">
-            {{ invitationdata.meetingId }}
-          </div>
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20" class="invitation">
-        <el-col :span="3">
-          <div class="invitation-left">会议密码：</div>
-        </el-col>
-        <el-col :span="16">
-          <div class="invitation-right">
-            {{ invitationdata.meetPwd ?invitationdata.meetPwd:'无密码'}}
-          </div>
-        </el-col>
-      </el-row>
-
-      <div style="width: 100%; text-align: center; margin-top: 5vh">
-        <el-button type="primary" style="background:#00ccff;border:0;" round data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="'会议链接：' +invitationdata.joinMeetUrl
+    <el-dialog title="会议邀请" custom-class="invita" :visible.sync="invitation" :close-on-click-modal="false" :close-on-press-escape="false"
+      :show-close="true" :modal="false" top="30vh" width="32%" center>
+      <!-- 邮箱信息 -->
+      <div style="display:flex;justify-content:space-around;align-items:center;padding-left:15px;width:80%;margin:0 auto;">
+        <!-- 谷歌邮箱信息 -->
+        <div style="height:100%;" data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+            '会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+          <a href="https://accounts.google.com/" target="_blank">
+            <img class="logos" src="../assets/google.svg" alt="" style="width:100px;">
+          </a>
+        </div>
+        <!-- 腾讯qq邮箱信息 -->
+        <div style="height:100%;margin-left:76px" data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+            '会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+          <a href="https://mail.qq.com/" target="_blank">
+            <img class="logos" src="../assets/tencent.svg" alt="" style="width:92px;">
+          </a>
+        </div>
+        <!-- 网易邮箱信息 -->
+        <div style="height:100%;margin-left:37px" data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+            '会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+          <a href="http://mail.netease.com/" target="_blank">
+            <img class="logos" src="../assets/netease.png" alt="" style="width:200px;">
+          </a>
+        </div>
+      </div>
+      <!-- 按钮 -->
+      <div style="width: 100%; text-align: center; margin-top: 1.5vh;margin-bottom: 20px">
+        <el-button type="primary" style="background:#00ccff;border:0;width:40%;margin-bottom:15px;" round data-clipboard-action="copy"
+          class="cobyDomObj" :data-clipboard-text="'会议链接：' +invitationdata.joinMeetUrl
           " @click="copyLink">
-          复制邀请链接</el-button>
-
-        <el-button round data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+          复制邀请链接</el-button><br>
+        <el-button style="width:40%;" round data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
             '会议主题：' +
             invitationdata.meetTopic +
             '\r\n会议链接：' +
@@ -113,10 +110,11 @@
           " @click="copyLink">
           复制邀请信息</el-button>
       </div>
+      <p style="text-align:center;color:#00ccff;">Tips 点击邮箱服务时，会自动复制会议详情至剪切板</p>
     </el-dialog>
 
     <!-- 设置信息 -->
-    <el-dialog title="设置" :visible.sync="isconfig" :modal="false" width="71%" top="15vh" center>
+    <el-dialog title="设置" :visible.sync="isconfig" :modal="false" width="68%" top="15vh" center>
       <!-- <span>需要注意的是内容是默认不居中的</span> -->
       <div class="config-main">
         <div class="config-main-left">
@@ -216,7 +214,9 @@
     </el-dialog>
 
     <!-- 录制倒计时 -->
-    <span class="countdown" v-if="count">{{count}}</span>
+    <!-- <span class="countdown" v-if="count">{{count}}</span> -->
+    <!-- <i v-if="!bottom_img_show" @click="bottom_img_show=true" class="iconfont icon-shousuoshangjiantou"
+      style="color:#00ccff;position:absolute;left:50%;bottom:-12px;z-index:9999;font-size:40px;cursor:pointer;"></i> -->
   </div>
 </template>
 
@@ -228,6 +228,7 @@ import vm from '@/event.js'
 import '../util/sdk.js' //引入sdk
 
 export default {
+  props: ['video_flag', 'scene_flag'],
   data() {
     return {
       showCount: true, // 是否展示验证码倒计时
@@ -239,47 +240,47 @@ export default {
       joininfo: {},
       bottoms: [
         {
-          img: require('../assets/webrtcs/video.png'),
+          img: require('../assets/webrtcs/video.svg'),
           type: 'video',
           text: '摄像头',
         },
         {
-          img: require('../assets/webrtcs/audio.png'),
+          img: require('../assets/webrtcs/audio.svg'),
           type: 'audio',
           text: '音频',
         },
         {
-          img: require('../assets/webrtcs/yaoqing.png'),
+          img: require('../assets/webrtcs/yaoqing.svg'),
           type: 'invitation',
           text: '邀请',
         },
         {
-          img: require('../assets/webrtcs/canhuizhe.png'),
+          img: require('../assets/webrtcs/canhuizhe.svg'),
           type: 'chz',
           text: '参会者',
         },
         {
-          img: require('../assets/webrtcs/share.png'),
+          img: require('../assets/webrtcs/share.svg'),
           type: 'share',
           text: '共享',
         },
         {
-          img: require('../assets/webrtcs/rec.png'),
+          img: require('../assets/webrtcs/rec.svg'),
           type: 'rec',
           text: '录制',
         },
         {
-          img: require('../assets/webrtcs/zhibo.png'),
+          img: require('../assets/webrtcs/zhibo.svg'),
           type: 'live',
           text: '直播',
         },
         {
-          img: require('../assets/webrtcs/set.png'),
+          img: require('../assets/webrtcs/set.svg'),
           type: 'set',
           text: '设置',
         },
         {
-          img: require('../assets/webrtcs/out.png'),
+          img: require('../assets/webrtcs/out.svg'),
           type: 'leave',
           text: '退出',
         },
@@ -373,15 +374,16 @@ export default {
     if (TaskId) {
       this.TaskId = TaskId
       this.recstatus = 1
-      this.bottoms[5].img = require('../assets/webrtcs/recing.png')
+      this.bottoms[5].img = require('../assets/webrtcs/recing.svg')
     }
     if (liveTaskId) {
       this.liveTaskId = liveTaskId
       this.live = 1
-      this.bottoms[6].img = require('../assets/webrtcs/zhiboing.png')
+      // this.bottoms[6].img = require('../assets/webrtcs/zhiboing.svg')
+      this.bottoms[6].img = require('../assets/webrtcs/liveplaying.gif')
     }
     this.getinvitation()
-
+    // this.showkeycode()
     // 8秒后隐藏底部工具栏
     // setTimeout(() => {
     //   $('.bottom-content').stop().fadeTo(800, 0)
@@ -395,25 +397,25 @@ export default {
     },
     videoStatus(newv, oldv) {
       if (newv == 0) {
-        this.bottoms[0].img = require('../assets/webrtcs/closevideo.png')
+        this.bottoms[0].img = require('../assets/webrtcs/closevideo.svg')
       } else {
-        this.bottoms[0].img = require('../assets/webrtcs/video.png')
+        this.bottoms[0].img = require('../assets/webrtcs/video.svg')
       }
     },
     audioStatus(newv, oldv) {
       if (newv == 0) {
-        this.bottoms[1].img = require('../assets/webrtcs/audioclose.png')
+        this.bottoms[1].img = require('../assets/webrtcs/audioclose.svg')
       } else {
-        this.bottoms[1].img = require('../assets/webrtcs/audio.png')
+        this.bottoms[1].img = require('../assets/webrtcs/audio.svg')
       }
     },
     shareStatus(newv, oldv) {
       if (newv == 0) {
-        this.bottoms[4].img = require('../assets/webrtcs/share.png')
+        this.bottoms[4].img = require('../assets/webrtcs/share.svg')
         this.bottoms[4].text = '共享'
       } else {
         this.bottoms[4].text = '共享中'
-        this.bottoms[4].img = require('../assets/webrtcs/share.png')
+        this.bottoms[4].img = require('../assets/webrtcs/share.svg')
       }
     },
     video(newv, oldv) {
@@ -421,16 +423,16 @@ export default {
     },
     recstatus(newv, oldv) {
       if (newv == 0) {
-        this.bottoms[5].img = require('../assets/webrtcs/rec.png')
+        this.bottoms[5].img = require('../assets/webrtcs/rec.svg')
         this.bottoms[5].text = '录制'
       } else {
-        this.bottoms[5].img = require('../assets/webrtcs/recing.png')
+        this.bottoms[5].img = require('../assets/webrtcs/recing.svg')
         this.bottoms[5].text = '录制中'
       }
     },
     live(newv, oldv) {
       if (newv == 0) {
-        this.bottoms[6].img = require('../assets/webrtcs/zhibo.png')
+        this.bottoms[6].img = require('../assets/webrtcs/zhibo.svg')
         this.bottoms[6].text = '直播'
       } else {
         this.bottoms[6].img = require('../assets/webrtcs/liveplaying.gif')
@@ -442,13 +444,7 @@ export default {
     // }
   },
   computed: {
-    ...mapState([
-      'videoStatus',
-      'audioStatus',
-      'admin',
-      'shareStatus',
-      'plist',
-    ]),
+    ...mapState(['videoStatus', 'audioStatus', 'admin', 'shareStatus', 'plist']),
   },
   methods: {
     // 判断是否有录制和直播的权限
@@ -519,18 +515,16 @@ export default {
 
     // 移入
     mouseOver() {
-      // this.bottom_img_show = true;
-      // $('.bottom-main').stop().fadeIn(800)
       // 设置透明度，切换显示与隐藏
       // $('.bottom-content').stop().fadeTo(700, 1)
+      // this.bottom_img_show = true
     },
 
     // 移出
     mouseLeave() {
-      // this.bottom_img_show = false;
-      // $('.bottom-main').stop().fadeOut(800)
       // 设置透明度，切换显示与隐藏
       // $('.bottom-content').stop().fadeTo(800, 0)
+      // this.bottom_img_show = false
     },
 
     // opennew() {
@@ -546,12 +540,18 @@ export default {
         // windows运行打开参会者列表
         // this.opennew()
       } else if (type == 'video') {
-        this.send_msg('video', this.videoStatus)
-        this.$emit('Camera', this.videoStatus ? true : false)
+        console.log(this.video_flag)
+        if (this.video_flag) {
+          this.send_msg('video', this.videoStatus)
+          this.$emit('Camera', this.videoStatus ? true : false)
+        }
         // this.$emit('setvideo', this.videoStatus ? true : false)
       } else if (type == 'audio') {
-        this.send_msg('scene', this.audioStatus)
-        this.$emit('Audio', this.audioStatus ? true : false)
+        console.log(this.scene_flag)
+        if (this.scene_flag) {
+          this.send_msg('scene', this.audioStatus)
+          this.$emit('Audio', this.audioStatus ? true : false)
+        }
         // this.$emit('setscene', this.audioStatus ? true : false)
       } else if (type == 'leave') {
         this.leave = true
@@ -751,13 +751,18 @@ export default {
       // }
       this.recstatus = this.recstatus ? 0 : 1
       if (this.recstatus) {
-        this.sendCode()
+        // this.sendCode()
         this.rec.ChannelId = this.joininfo.channelId
         this.rec.userId = this.joininfo.userId
         var data = this.rec
         var apiurl = APIUrl.util.StartMPUTask
       } else {
-        var data = { TaskId: this.TaskId }
+        var data = {
+          TaskId: this.TaskId,
+          userId: this.joininfo.userId,
+          ChannelId: this.joininfo.channelId,
+          type: 'transcribe',
+        }
         var apiurl = APIUrl.util.StopMPUTask
       }
       post(apiurl, data).then((res) => {
@@ -805,7 +810,7 @@ export default {
       // 使用轻直播传type为program
       this.livedata.type = this.changeAddress == 2 ? 'program' : ''
       var data = this.livedata
-      console.log(data)
+      // console.log(data)
       post(apiurl, data).then((res) => {
         console.log('直播', res)
         if (res.status == 200) {
@@ -841,7 +846,12 @@ export default {
     stoplive() {
       // console.log(this.liveTaskId)
       this.liveTaskId = localStorage.getItem('liveTaskId')
-      var data = { TaskId: this.liveTaskId }
+      var data = {
+        TaskId: this.liveTaskId,
+        userId: this.joininfo.userId,
+        ChannelId: this.joininfo.channelId,
+        type: 'streaming',
+      }
       var apiurl = APIUrl.util.StopMPUTask
       post(apiurl, data)
         .then((res) => {
@@ -964,9 +974,7 @@ export default {
     //动态替换选中后的样式
     cssactive(id, data) {
       data.forEach((element) => {
-        document
-          .getElementById('select' + element)
-          .setAttribute('class', 'config-main-left-title')
+        document.getElementById('select' + element).setAttribute('class', 'config-main-left-title')
       })
       const dom = document.getElementById('select' + id)
       dom.setAttribute('class', 'config-main-left-title active')
@@ -977,7 +985,7 @@ export default {
       const apiurl = APIUrl.util.meetInvite
       post(apiurl, { meetingId: this.joininfo.channelId })
         .then((res) => {
-          console.log('邀请信息', res)
+          // console.log('邀请信息', res)
           if (res.status == 200) {
             this.invitationdata = res.data
           } else {
@@ -1042,9 +1050,9 @@ export default {
 .bottom-main {
   position: fixed;
   left: 0;
-  bottom: 1vh;
+  bottom: 1.5%;
   width: 100%;
-  height: 8vh;
+  // height: 8vh;
 }
 // 单选框样式
 .bottom-content .el-radio__input.is-checked + .el-radio__label {
@@ -1057,7 +1065,7 @@ export default {
   color: #fff !important;
 }
 .bottom-img {
-  width: 65vh;
+  width: 76vh;
   background: rgba(0, 0, 0, 0.5);
   margin: 0 auto;
   height: 100%;
@@ -1067,10 +1075,10 @@ export default {
   flex-wrap: wrap;
   align-content: center;
   justify-content: center;
-  padding: 6px 0;
+  padding: 7px 0;
 }
 .bottomtext {
-  width: 64vh;
+  width: 76vh;
   margin: 0 auto;
   height: 100%;
   display: flex;
@@ -1081,13 +1089,13 @@ export default {
   margin-top: 3px;
   div {
     h3 {
-      width: 5vh;
+      width: 6vh;
       margin: 0 1vh;
     }
   }
 }
 .bottom-img img {
-  width: 5vh;
+  width: 6vh;
   margin: 0 1vh;
   cursor: pointer;
   transition: all 0.3s;
@@ -1152,35 +1160,22 @@ export default {
   color: white;
 }
 /deep/.el-dialog__wrapper {
-  .el-dialog {
-    @media screen and (min-width: 100px) and (max-width: 1319px) {
-      width: 585px !important;
-      height: 576px !important;
-      &:nth-child(1) {
-        height: 230px !important;
-      }
-    }
-    @media screen and (min-width: 1320px) {
-      width: 585px !important;
-      height: 576px !important;
-      &:nth-child(1) {
-        height: 230px !important;
-      }
-    }
-    & /deep/.el-dialog--center {
-      min-width: 257px !important;
-    }
-  }
-
   .invita {
-    /deep/.el-dialog__header {
-      background: #f7f7f7 !important;
-      padding-right: 47px;
-      /deep/.el-dialog__title {
-        margin-left: 20px !important;
+    border-radius: 25px !important;
+    min-width: 578px !important;
+    .el-dialog__header {
+      padding: 20px 20px 10px !important;
+      span {
+        font-weight: 700;
       }
     }
+    .el-dialog__body {
+      padding: 25px 25px 46px !important;
+    }
   }
+  // & /deep/.el-dialog--center {
+  //   min-width: 257px !important;
+  // }
 }
 
 // 录制倒计时效果

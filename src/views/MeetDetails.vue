@@ -4,7 +4,7 @@
       <i class="iconfont icon-meiyoushuju" style="font-size: 5rem"></i><br />
       暂无会议哦，赶紧去安排新会议吧~
     </div> -->
-
+   
     <div v-for="item in meetlist" :key="item.id">
       <div v-if="item.id == meetId">
         <div>
@@ -110,8 +110,8 @@
           </div>
         </el-dialog> -->
 
-        <el-dialog v-if="invitationdata" class="invita" title="邀请他人加入会议" :visible.sync="invitation" :close-on-click-modal="false"
-          :close-on-press-escape="false" :show-close="true" :modal="false" top="30vh" width="45%" left>
+        <!-- <el-dialog v-if="invitationdata" class="invita" title="邀请他人加入会议" :visible.sync="invitation" :close-on-click-modal="false"
+          :close-on-press-escape="false" :show-close="true" :modal="false" top="30vh" width="51%" left>
           <el-row :gutter="20" class="invitation">
             <el-col :span="3">
               <div class="invitation-left">
@@ -198,7 +198,81 @@
               复制邀请信息
             </el-button>
           </div>
+        </el-dialog> -->
+
+        <el-dialog v-if="invitationdata" style="border-radius:20px;" custom-class="invitations" title="会议邀请" :visible.sync="invitation"
+          :close-on-click-modal="false" :close-on-press-escape="false" :show-close="true" :modal="false" top="25vh" width="32% !important" center>
+          <!-- 邮箱信息 -->
+          <div style="display:flex;justify-content:space-around;align-items:center;padding-left:15px;">
+            <!-- 谷歌邮箱信息 -->
+            <div style="height:100%;" data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+            '会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+              <a href="https://accounts.google.com/" target="_blank">
+                <img class="logos" src="../assets/google.svg" alt="" style="width:100px;">
+              </a>
+            </div>
+            <!-- 腾讯qq邮箱信息 -->
+            <div style="height:100%;margin-left:76px" data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+            '会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+              <a href="https://mail.qq.com/" target="_blank">
+                <img class="logos" src="../assets/tencent.svg" alt="" style="width:80px;">
+              </a>
+            </div>
+            <!-- 网易邮箱信息 -->
+            <div style="height:100%;margin-left:37px" data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="'会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+              <a href="http://mail.netease.com/" target="_blank">
+                <img class="logos" src="../assets/netease.png" alt="" style="width:200px;">
+              </a>
+            </div>
+          </div>
+          <!-- 按钮 -->
+          <div style="width: 100%; text-align: center; margin-top: 1.5vh;margin-bottom: 20px">
+            <el-button type="primary" style="background:#00ccff;border:0;width:40%;margin-bottom:15px;" round data-clipboard-action="copy"
+              class="cobyDomObj" :data-clipboard-text="'会议链接：' +invitationdata.joinMeetUrl" @click="copyLink">
+              复制邀请链接</el-button><br>
+            <el-button style="width:40%;" round data-clipboard-action="copy" class="cobyDomObj" :data-clipboard-text="
+            '会议主题：' +
+            invitationdata.meetTopic +
+            '\r\n会议链接：' +
+            invitationdata.joinMeetUrl +
+            '\r\n开始时间：' +
+            invitationdata.startTime +
+            '\r\n会议ID：' +
+            invitationdata.meetingId+
+            '\r\n会议密码：' +
+            invitationdata.meetPwd" @click="copyLink">
+              复制邀请信息</el-button>
+          </div>
+          <p style="text-align:center;color:#00ccff;">Tips 点击邮箱服务时，会自动复制会议详情至剪切板</p>
         </el-dialog>
+
       </div>
     </div>
 
@@ -332,19 +406,10 @@ export default {
       let yy = new Date().getFullYear()
       let mm = new Date().getMonth() + 1
       mm = mm < 10 ? '0' + mm : mm
-      let dd =
-        new Date().getDate() < 10
-          ? '0' + new Date().getDate()
-          : new Date().getDate()
+      let dd = new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate()
       let hh = new Date().getHours()
-      let mf =
-        new Date().getMinutes() < 10
-          ? '0' + new Date().getMinutes()
-          : new Date().getMinutes()
-      let ss =
-        new Date().getSeconds() < 10
-          ? '0' + new Date().getSeconds()
-          : new Date().getSeconds()
+      let mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
+      let ss = new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()
 
       return yy + '-' + mm + '-' + dd + ' ' + hh + ':' + mf + ':' + ss
     },
@@ -388,6 +453,7 @@ export default {
 .details {
   text-align: center;
   overflow: hidden;
+  padding-top: 47px;
   .invitation {
     margin-bottom: 15px !important;
   }
@@ -403,31 +469,28 @@ export default {
     text-align: left;
   }
   /deep/.el-dialog__wrapper {
-    .el-dialog {
-      @media (min-width: 100px) and (max-width: 1319px) {
-        width: 830px !important;
-        height: 445px !important;
-        &:nth-child(1) {
-          width: 43% !important;
-          height: 450px !important;
+    // .el-dialog {
+    //   @media (min-width: 100px) and (max-width: 1319px) {
+    //     width: 830px !important;
+    //     height: 445px !important;
+    //   }
+    //   @media screen and (min-width: 1320px) {
+    //     width: 830px !important;
+    //     height: 445px !important;
+    //   }
+    // }
+    .invitations {
+      width: 32% !important;
+      height: 422px !important;
+      border-radius: 25px !important;
+      .el-dialog__header {
+        padding: 29px 20px 10px !important;
+        span {
+          font-weight: 700;
         }
       }
-      @media screen and (min-width: 1320px) {
-        width: 830px !important;
-        height: 445px !important;
-        &:nth-child(1) {
-          width: 43% !important;
-          height: 450px !important;
-        }
-      }
-    }
-    .invita {
-      /deep/.el-dialog__header {
-        background: #f7f7f7 !important;
-        padding-right: 47px;
-        /deep/.el-dialog__title {
-          margin-left: 20px !important;
-        }
+      .el-dialog__body {
+        padding: 25px 25px 46px !important;
       }
     }
   }

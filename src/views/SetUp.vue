@@ -2,12 +2,17 @@
   <div class="setup">
     <div class="main">
       <header>
-        <div style="margin-left:2%">
+        <div style="display:flex;align-items:center;justify-content: space-between;" class="w">
           <img src="../assets/webrtcs/meetlogo.png" alt="" style="width:155px;height:57px;">
+          <div class="logout">
+            <img :src="userinfo.avatar" alt="">
+            <span style="margin-left:20px;">{{userinfo.username}}</span>
+          </div>
         </div>
-        <i class="el-icon-close" style="font-size: 30px; margin-left: 10px; cursor: pointer" @click="$router.push('/menu')"></i>
+
+        <!-- <i class="el-icon-close" style="font-size: 30px; margin-left: 10px; cursor: pointer" @click="$router.push('/menu')"></i> -->
       </header>
-      <div style="display:flex; width: 100%;height: 92vh;">
+      <div style="display:flex;height: 92vh;" class="w">
         <el-aside>
           <el-col :span="6">
             <h5 style=""> 设置 </h5>
@@ -21,7 +26,11 @@
             </el-menu>
           </el-col>
         </el-aside>
-        <el-main style="padding:47px 20px">
+        <el-main style="position:relative;padding:35px 20px;background:#fff;margin-left:20px;">
+          <div style="position:absolute;top:26px;right:27px;cursor:pointer;" @click="$router.push('/menu')">
+            <img src="../assets/webrtcs/back.svg" alt="" style="margin-top:-1px;width:16px;height:24px;vertical-align:middle;margin-right:5px;">
+            <span style="color:#999;">返回首页</span>
+          </div>
           <router-view></router-view>
         </el-main>
       </div>
@@ -32,7 +41,17 @@
 
 <script>
 import { Col, Menu, mentItem, Submenu } from 'element-ui'
+import { mapState } from 'vuex' //引入vuex
+
 export default {
+  data() {
+    return {
+      userinfo: {},
+    }
+  },
+  created() {
+    this.userinfo = JSON.parse(localStorage.getItem('userinfo'))
+  },
   methods: {
     handleOpen(key, keyPath) {
       console.log(key, keyPath)
@@ -46,8 +65,12 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.w {
+  width: 1300px;
+  margin: 0 auto;
+}
 .setup {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   background-color: #fff;
   display: flex;
@@ -57,15 +80,30 @@ export default {
   .main {
     width: 100%;
     height: 100%;
-    background: #ffffff;
+    background: #f9f9fd;
     box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.13);
     header {
       width: 100%;
-      height: 8vh;
+      height: 100px;
+      line-height: 100px;
       background: #ffffff;
       box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.05);
       display: flex;
       align-items: center;
+      margin-bottom: 20px;
+      .logout {
+        margin-left: 33.5%;
+        span {
+          font-size: 16px;
+          color: #666;
+        }
+        img {
+          width: 60px;
+          height: 60px;
+          border-radius: 100%;
+          vertical-align: middle;
+        }
+      }
       .el-icon-close {
         position: absolute;
         top: 20px;
@@ -77,10 +115,10 @@ export default {
       }
     }
     .el-aside {
-      width: 17% !important;
+      width: 30% !important;
       height: 100%;
-      border-right: 1px solid rgba(0, 0, 0, 0.08);
-
+      // border-right: 1px solid rgba(0, 0, 0, 0.08);
+      background-color: #fff;
       .el-col {
         width: 100%;
         h5 {

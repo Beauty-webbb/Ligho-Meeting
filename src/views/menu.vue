@@ -17,7 +17,6 @@
             <el-dropdown-item @click="logout" command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-
       </div>
     </header>
 
@@ -51,7 +50,7 @@
       </ul>
 
       <!-- 加入会议 -->
-      <el-dialog title="加入会议" :visible.sync="joinDialog" width="30%" top="30vh" center>
+      <el-dialog title="加入会议" custom-class="jMeet" :visible.sync="joinDialog" width="30%" top="30vh" center>
         <el-form :label-position="labelPosition" label-width="80px" style="text-align: center">
           <el-form-item label class="index-el-form-item">
             <el-autocomplete v-model="meetingId" style="width:90%;" class="inline-input" @blur.stop="saveLocal($event.target)"
@@ -277,18 +276,13 @@ export default {
     },
     querySearch(queryString, cb) {
       var restaurants = this.historyList
-      var results = queryString
-        ? restaurants.filter(this.createFilter(queryString))
-        : restaurants
+      var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
       // 调用 callback 返回建议列表的数据
       cb(results)
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        )
+        return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
       }
     },
 
@@ -436,19 +430,10 @@ export default {
       let yy = new Date().getFullYear()
       let mm = new Date().getMonth() + 1
       mm = mm < 10 ? '0' + mm : mm
-      let dd =
-        new Date().getDate() < 10
-          ? '0' + new Date().getDate()
-          : new Date().getDate()
+      let dd = new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate()
       let hh = new Date().getHours()
-      let mf =
-        new Date().getMinutes() < 10
-          ? '0' + new Date().getMinutes()
-          : new Date().getMinutes()
-      let ss =
-        new Date().getSeconds() < 10
-          ? '0' + new Date().getSeconds()
-          : new Date().getSeconds()
+      let mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()
+      let ss = new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()
 
       return yy + '-' + mm + '-' + dd + ' ' + hh + ':' + mf + ':' + ss
     },
@@ -532,8 +517,7 @@ export default {
           this.formData.stopTime = this.meetDeatil.stop
           this.formData.pwd = this.meetDeatil.meetPwd
           this.formData.beforeHost = this.meetDeatil.tailStatus ? true : false
-          this.formData.oneself =
-            this.meetDeatil.meetingId == this.userinfo.meetingId ? true : false
+          this.formData.oneself = this.meetDeatil.meetingId == this.userinfo.meetingId ? true : false
           this.formData.id = this.meetDeatil.id
         }
       })
@@ -655,8 +639,6 @@ export default {
         font-size: 16px;
         color: #666;
         cursor: pointer;
-      }
-      .logoutspan {
       }
       img {
         width: 60px;
@@ -901,22 +883,16 @@ export default {
     /deep/.el-dialog__wrapper {
       .el-dialog {
         @media screen and (min-width: 300px) and (max-width: 1319px) {
-          width: 590px !important;
-          height: 500px !important;
+          width: 645px !important;
+          height: 506px !important;
         }
         @media screen and (min-width: 1320px) {
-          width: 590px !important;
-          height: 500px !important;
+          width: 645px !important;
+          height: 506px !important;
         }
-        &:first-child {
-          height: 402px !important;
-        }
-        &:last-child {
-          width: 590px !important;
-          height: 500px !important;
-          @media screen and (min-width: 1730px) {
-          }
-        }
+      }
+      .jMeet {
+        height: 435px !important;
       }
     }
   }
