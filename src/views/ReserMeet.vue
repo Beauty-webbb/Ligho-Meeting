@@ -18,8 +18,6 @@
         </div>
 
       </header>
-      <!-- <i class="el-icon-close" @click="$router.push('/menu')"></i> -->
-
       <div style="display: flex;background: #F9F9FD;" class="w">
         <el-aside>
           <el-col :span="6">
@@ -35,9 +33,6 @@
             </div>
             <el-menu style="margin-top:10px;" :default-active="'/resermeet/meetDetails:' + meetId" class="el-menu-vertical-demo" @open="handleOpen"
               @close="handleClose" router>
-              <!-- <el-menu-item index="/resermeet/meetDetails" v-if="!meetlist.length">
-                <span slot="title" style="font-size: 1.4rem"> 暂无会议哦</span>
-              </el-menu-item> -->
               <el-menu-item @click="getId(item.id)" :index="'/resermeet/meetDetails:' + item.id" v-for="item in meetlist" :key="item.id">
                 <span
                   style="font-size: 1.4rem;overflow: hidden;white-space: nowrap;  text-overflow: ellipsis;  box-sizing: border-box; display: block; width: 332px;">{{ item.meetTopic }}
@@ -704,6 +699,7 @@ export default {
       }
     }
     /deep/.el-dialog__wrapper {
+      margin-top: 0 !important;
       .el-dialog {
         @media screen and (min-width: 100px) and (max-width: 1319px) {
           width: 645px !important;
@@ -719,8 +715,10 @@ export default {
       }
       .invitations {
         width: 32% !important;
+        min-width: 615px !important;
         height: 422px !important;
         border-radius: 25px !important;
+        margin-top: 10vh !important;
         .el-dialog__header {
           padding: 29px 20px 10px !important;
           span {

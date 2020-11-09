@@ -745,7 +745,7 @@ export default {
         height: 13vh;
         display: flex;
         padding-left: 5%;
-        margin-bottom: 3%;
+        margin-bottom: 5%;
         .content_left {
           flex: 5;
           display: flex;

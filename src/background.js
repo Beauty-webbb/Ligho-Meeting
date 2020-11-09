@@ -147,8 +147,8 @@ const winURL = process.env.NODE_ENV === 'development' ?
   `file://${__dirname}/index.html`
 let childview
 
-// 打开子窗口(参会者列表)
-ipcMain.on('opennew', function (data) {
+// 打开子窗口(弹出参会者列表)
+ipcMain.on('openNewWindow', function (data) {
   console.log(data)
   // window.open('./components/participants.vue')
   childview = new BrowserWindow({

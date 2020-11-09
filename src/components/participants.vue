@@ -4,7 +4,7 @@
       <div class="title">
         <h3>参会者</h3>
         <!-- 客户端启用 -->
-        <!-- <i @click="opennew" title="弹出参会者列表" class="iconfont icon-danchuchuangkou"
+        <!-- <i @click="openNewWindow" title="弹出参会者列表" class="iconfont icon-danchuchuangkou"
           style="cursor:pointer;color:#00ccff;font-size:25px;position:absolute;top:1.4%;right:5%;"></i> -->
       </div>
       <div class="cont">
@@ -212,7 +212,7 @@ export default {
     },
 
     // 客户端弹出参会者列表
-    opennew() {
+    openNewWindow() {
       this.$store.commit('setpeoplelist', false)
       const { ipcRenderer, BrowserWindow } = window.require('electron')
       ipcRenderer.send('opennew', 'peoplelist')

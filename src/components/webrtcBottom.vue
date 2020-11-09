@@ -38,7 +38,7 @@
 
     <!-- 会议邀请信息 -->
     <el-dialog title="会议邀请" custom-class="invita" :visible.sync="invitation" :close-on-click-modal="false" :close-on-press-escape="false"
-      :show-close="true" :modal="false" top="30vh" width="32%" center>
+      :show-close="true" :modal="false" top="22vh" width="32%" center>
       <!-- 邮箱信息 -->
       <div style="display:flex;justify-content:space-around;align-items:center;padding-left:15px;width:80%;margin:0 auto;">
         <!-- 谷歌邮箱信息 -->
@@ -516,14 +516,14 @@ export default {
     // 移入
     mouseOver() {
       // 设置透明度，切换显示与隐藏
-      // $('.bottom-content').stop().fadeTo(700, 1)
+      // $('.bottom-content').stop().fadeTo(0, 1)
       // this.bottom_img_show = true
     },
 
     // 移出
     mouseLeave() {
       // 设置透明度，切换显示与隐藏
-      // $('.bottom-content').stop().fadeTo(800, 0)
+      // $('.bottom-content').stop().fadeTo(0, 0)
       // this.bottom_img_show = false
     },
 
@@ -540,14 +540,14 @@ export default {
         // windows运行打开参会者列表
         // this.opennew()
       } else if (type == 'video') {
-        console.log(this.video_flag)
+        // console.log(this.video_flag)
         if (this.video_flag) {
           this.send_msg('video', this.videoStatus)
           this.$emit('Camera', this.videoStatus ? true : false)
         }
         // this.$emit('setvideo', this.videoStatus ? true : false)
       } else if (type == 'audio') {
-        console.log(this.scene_flag)
+        // console.log(this.scene_flag)
         if (this.scene_flag) {
           this.send_msg('scene', this.audioStatus)
           this.$emit('Audio', this.audioStatus ? true : false)
@@ -1012,7 +1012,7 @@ export default {
         type: type,
       })
         .then((res) => {
-          console.log(res)
+          // console.log(res)
         })
         .catch((error) => {
           this.$message.error(error)
